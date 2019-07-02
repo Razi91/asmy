@@ -51,10 +51,9 @@ describe('Cpu\'s core is working', () => {
     });
 
     it('should progress program counter', () => {
-        const nop: Op = new Op('nop');
         const cpu = new Cpu({
             stackSize: 2 << 16,
-            program: [nop, nop]
+            program: ['nop', 'nop']
         });
         expect(cpu.regs.pc).to.equal(0);
         cpu.doStep();
@@ -73,6 +72,13 @@ describe('Cpu\'s core is working', () => {
         expect(() => regs.a = 4).to.throw();
     });
 
+    it('negative values', () => {
+        const cpu = new Cpu({});
+        let regs = cpu.getArgs(['r0']);
+        regs.a = -1;
+        expect(regs.a).to.equal(0xffffffff)
+    });
+
     describe('Inner memory operations', () => {
         const cpu = new Cpu({
             stackSize: 8
@@ -82,6 +88,8 @@ describe('Cpu\'s core is working', () => {
         it('allows to save data on stack', () => {
             cpu.regs.sp += 8;
             cpu.regs.r0 = 4;
+            arg.a = 5;
+            expect(arg.a).to.equal(5);
             arg.a = 0
         });
 

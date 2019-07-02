@@ -1,17 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c39f7ea9-87dc-4c20-81d8-f1cc07ef5007" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ops/arithmetic.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ops/nop.ts" afterDir="false" />
+    <list default="true" id="c39f7ea9-87dc-4c20-81d8-f1cc07ef5007" name="Default Changelist" comment="arithmetic opcodes">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/cpu.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpu.spec.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/cpu.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpu.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/op.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/op.spec.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/op.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/op.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ops/add.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ops/arithmetic.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ops/arithmetic.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ops/nop.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ops/nop.ts" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -23,7 +18,7 @@
     <splitter split-orientation="horizontal" split-proportion="0.5">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file pinned="false" current-in-tab="true">
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/package.json">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="220">
@@ -35,7 +30,7 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/src/cpu.ts">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="433">
+                <state relative-caret-position="711">
                   <caret line="195" column="40" selection-start-line="195" selection-start-column="40" selection-end-line="195" selection-end-column="40" />
                   <folding>
                     <element signature="e#0#21#0" expanded="true" />
@@ -47,8 +42,8 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/src/op.ts">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="557">
-                  <caret line="51" column="30" selection-start-line="51" selection-start-column="30" selection-end-line="51" selection-end-column="30" />
+                <state relative-caret-position="44">
+                  <caret line="2" selection-start-line="2" selection-end-line="2" />
                   <folding>
                     <element signature="e#163#197#0" expanded="true" />
                   </folding>
@@ -56,25 +51,22 @@
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/src/ops/arithmetic.ts">
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/.gitignore">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-720">
-                  <caret line="42" column="53" lean-forward="true" selection-start-line="42" selection-start-column="53" selection-end-line="42" selection-end-column="53" />
-                  <folding>
-                    <element signature="e#0#50#0" expanded="true" />
-                  </folding>
+                <state relative-caret-position="66">
+                  <caret line="3" column="5" selection-start-line="3" selection-start-column="5" selection-end-line="3" selection-end-column="5" />
                 </state>
               </provider>
             </entry>
           </file>
           <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/src/ops/nop.ts">
+            <entry file="file://$PROJECT_DIR$/src/ops/arithmetic.ts">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="66">
-                  <caret line="3" column="33" selection-start-line="3" selection-start-column="33" selection-end-line="3" selection-end-column="33" />
+                <state relative-caret-position="132">
+                  <caret line="6" column="50" selection-start-line="6" selection-start-column="50" selection-end-line="6" selection-end-column="50" />
                   <folding>
-                    <element signature="e#0#23#0" expanded="true" />
+                    <element signature="e#0#50#0" expanded="true" />
                   </folding>
                 </state>
               </provider>
@@ -137,8 +129,8 @@
       <find>Op</find>
       <find>nop</find>
       <find>cut</find>
-      <find>args</find>
       <find>stack</find>
+      <find>args</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -149,15 +141,16 @@
       <list>
         <option value="$PROJECT_DIR$/src/index.ts" />
         <option value="$PROJECT_DIR$/package.json" />
-        <option value="$PROJECT_DIR$/src/ops/nop.ts" />
         <option value="$PROJECT_DIR$/src/cpu.spec.ts" />
         <option value="$PROJECT_DIR$/src/ops/add.ts" />
         <option value="$PROJECT_DIR$/src/ops/arithmethic.ts" />
         <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/src/op.ts" />
         <option value="$PROJECT_DIR$/src/cpu.ts" />
         <option value="$PROJECT_DIR$/src/op.spec.ts" />
         <option value="$PROJECT_DIR$/src/ops/arithmetic.ts" />
+        <option value="$PROJECT_DIR$/src/ops/nop.ts" />
+        <option value="$PROJECT_DIR$/src/op.ts" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -255,23 +248,51 @@
       <workItem from="1561391663299" duration="40372000" />
       <workItem from="1561760452729" duration="4137000" />
       <workItem from="1561828266040" duration="1232000" />
-      <workItem from="1562003748273" duration="31566000" />
+      <workItem from="1562003748273" duration="31786000" />
     </task>
+    <task id="LOCAL-00001" summary="arithmetic opcodes">
+      <created>1562099114930</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1562099114930</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
+  <component name="TestHistory">
+    <history-entry file="src - 2019.07.02 at 22h 20m 29s.xml">
+      <configuration name="src" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="test - 2019.07.02 at 22h 21m 47s.xml">
+      <configuration name="test" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="test - 2019.07.02 at 22h 22m 26s.xml">
+      <configuration name="test" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="test - 2019.07.02 at 22h 23m 21s.xml">
+      <configuration name="test" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="test - 2019.07.02 at 22h 23m 30s.xml">
+      <configuration name="test" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="test - 2019.07.02 at 22h 26m 24s.xml">
+      <configuration name="test" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+  </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="77307000" />
+    <option name="totallyTimeSpent" value="77527000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1984" y="-1" width="2496" height="1441" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13836734" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.13836734" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3298272" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3298272" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.3298272" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -292,6 +313,10 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="arithmetic opcodes" />
+    <option name="LAST_COMMIT_MESSAGE" value="arithmetic opcodes" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/lib/index.d.ts">
@@ -338,50 +363,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/op.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="557">
-          <caret line="51" column="30" selection-start-line="51" selection-start-column="30" selection-end-line="51" selection-end-column="30" />
-          <folding>
-            <element signature="e#163#197#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cpu.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="433">
-          <caret line="195" column="40" selection-start-line="195" selection-start-column="40" selection-end-line="195" selection-end-column="40" />
-          <folding>
-            <element signature="e#0#21#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/node_modules/typescript/lib/lib.es2015.core.d.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="287">
           <caret line="453" column="4" selection-start-line="453" selection-start-column="4" selection-end-line="453" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ops/nop.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="66">
-          <caret line="3" column="33" selection-start-line="3" selection-start-column="33" selection-end-line="3" selection-end-column="33" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ops/arithmetic.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-720">
-          <caret line="42" column="53" lean-forward="true" selection-start-line="42" selection-start-column="53" selection-end-line="42" selection-end-column="53" />
-          <folding>
-            <element signature="e#0#50#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -399,6 +384,53 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="220">
           <caret line="10" column="55" lean-forward="true" selection-start-line="10" selection-start-column="39" selection-end-line="10" selection-end-column="55" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cpu.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="711">
+          <caret line="195" column="40" selection-start-line="195" selection-start-column="40" selection-end-line="195" selection-end-column="40" />
+          <folding>
+            <element signature="e#0#21#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ops/nop.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="264">
+          <caret line="12" column="19" selection-start-line="12" selection-start-column="19" selection-end-line="12" selection-end-column="19" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ops/arithmetic.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="132">
+          <caret line="6" column="50" selection-start-line="6" selection-start-column="50" selection-end-line="6" selection-end-column="50" />
+          <folding>
+            <element signature="e#0#50#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/op.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="44">
+          <caret line="2" selection-start-line="2" selection-end-line="2" />
+          <folding>
+            <element signature="e#163#197#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="66">
+          <caret line="3" column="5" selection-start-line="3" selection-start-column="5" selection-end-line="3" selection-end-column="5" />
         </state>
       </provider>
     </entry>

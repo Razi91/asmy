@@ -1,12 +1,11 @@
 export default abstract class Op {
     args: CpuRegs = {};
 
-
     protected constructor() {
 
     }
 
-    abstract exe(): void;
+    abstract exe(): boolean;
 }
 
 import Cpu, {CpuRegs} from './cpu'

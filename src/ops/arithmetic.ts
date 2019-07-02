@@ -45,20 +45,19 @@ export default abstract class Arithmetic extends Op {
 
 
     exe() {
-        //TODO: check condition
         if (this.condition != ConditionCode.AL) {
             if (!this.cpu.status.check(this.condition)) {
-                return
+                return false
             }
         }
         let result = this.innerExe();
         if (this.setStatus) {
-            //TODO: set flags if required
             this.cpu.status.n = (result & 0x80000000) != 0;
             this.cpu.status.z = this.args.a === 0;
             this.cpu.status.c = this.signed ? result > 0x7fffffff : result > 0xffffffff;
             this.cpu.status.v = result < 0;
         }
+        return true
     }
 
 }

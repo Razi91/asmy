@@ -10,7 +10,7 @@ export default class Nop extends Op {
 
 
     exe() {
-        return
+        return true
     };
 
 }

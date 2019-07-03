@@ -38,6 +38,9 @@ export function parseArguments(code: string): string[] {
             }
         }
     }
+    if (stack.length != 0) {
+        throw new Error('Invalid syntax, mismatch ]');
+    }
     return args
 }
 

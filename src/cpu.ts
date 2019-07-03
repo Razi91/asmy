@@ -22,10 +22,14 @@ export enum ConditionCode {
 };
 
 export class CpuStatus {
-    n = false;
-    z = false;
-    c = false;
-    v = false;
+    n = false; // negative
+    z = false; // zero
+    c = false; // carry
+    v = false; // overflow
+
+    get(key: string) {
+        return (this as any)[key]
+    }
 
     /**
      *  Check
@@ -63,14 +67,14 @@ export class CpuStatus {
     }
 }
 
-interface Arg {
+export interface Arg {
     get(): number,
 
     set(value: number): void
 }
 
 export class CpuRegs {
-    [key: string]: number;
+    [key: string]: Arg;
 }
 
 interface CpuOptions {
@@ -90,6 +94,7 @@ class Cpu {
     status = new CpuStatus();
     stack: Uint8Array;
     program: Op[];
+    labels: { [key: string]: number } = {};
 
     constructor(options: CpuOptions) {
         let {
@@ -106,30 +111,39 @@ class Cpu {
         let createRegisters: string[] = [
             ...Array(registers).fill(0).map((_, i) => `r${i}`),
             'pc',
-            'sp'
+            'sp',
+            '_a'
         ];
         for (let reg in createRegisters) {
-            Object.defineProperty(this.regs, createRegisters[reg], {
-                enumerable: true,
-                configurable: false,
-                get(): number {
+            this.regs[createRegisters[reg]] = {
+                get() {
                     return self.innerMemory[reg];
                 },
                 set(value: number) {
                     self.innerMemory[reg] = value;
-                },
-            })
+                }
+            }
+            // Object.defineProperty(this.regs, createRegisters[reg], {
+            //     enumerable: true,
+            //     configurable: false,
+            //     get(): number {
+            //         return self.innerMemory[reg];
+            //     },
+            //     set(value: number) {
+            //         self.innerMemory[reg] = value;
+            //     },
+            // })
         }
         this.program = code.map(instruction => decode(this, instruction));
     }
 
     public doStep(): void {
         let pc = this.regs.pc;
-        if (this.program.length <= pc) {
+        if (this.program.length <= pc.get()) {
             throw new Error(`Instruction at ${pc} not found`)
         }
-        this.program[pc].exe();
-        this.regs.pc = pc + 1
+        this.program[pc.get()].exe();
+        this.regs.pc.set(pc.get() + 1)
     }
 
     insertCode(code: string, segment?: string): void {
@@ -143,54 +157,47 @@ class Cpu {
     }
 
     getArgs(names: string[]): CpuRegs {
-        let cpu = this;
-        let ret: CpuRegs = {};
-        let regs = this.regs;
-        let letters = ['a', 'b', 'c', 'd', 'e'];
+        const cpu = this;
+        const ret: CpuRegs = {};
+        const regs = this.regs;
+        const letters = ['a', 'b', 'c', 'd', 'e'];
         let i = 0;
         for (let arg of names) {
             if (regs.hasOwnProperty(arg)) {
-                Object.defineProperty(ret, letters[i++], {
-                    get(): number {
-                        return regs[arg]
-                    },
-                    set(value: number) {
-                        regs[arg] = value
-                    }
-                })
+                ret[letters[i++]] = regs[arg]
             } else if (arg[0] == '#') {
                 const val = parseInt(arg.substr(1));
-                Object.defineProperty(ret, letters[i++], {
+                ret[letters[i++]] = {
                     get(): number {
                         return val
                     },
                     set() {
                         throw new Error('Trying to store in raw value');
                     }
-                })
+                }
             } else if (arg[0] == '[' && arg[arg.length - 1] == ']') {
                 if (arg.indexOf(',') !== -1) {
                     let args = arg.substr(1, arg.length - 2).split(',').map(s => s.trim());
                     let reg = args[0];
-                    let offset = parseInt(args[1].substr(1))
-                    Object.defineProperty(ret, letters[i++], {
+                    let offset = parseInt(args[1].substr(1));
+                    ret[letters[i++]] = {
                         get(): number {
-                            return cpu.innerMemory[regs[reg] + offset]
+                            return cpu.innerMemory[regs[reg].get() + offset]
                         },
                         set(value: number) {
-                            cpu.innerMemory[regs[reg] + offset] = value;
+                            cpu.innerMemory[regs[reg].get() + offset] = value;
                         }
-                    })
+                    }
                 } else {
                     let reg = arg.substr(1, arg.length - 2);
-                    Object.defineProperty(ret, letters[i++], {
+                    ret[letters[i++]] = {
                         get(): number {
-                            return cpu.innerMemory[regs[reg]]
+                            return cpu.innerMemory[regs[reg].get()]
                         },
                         set(value: number) {
-                            cpu.innerMemory[regs[reg]] = value;
+                            cpu.innerMemory[regs[reg].get()] = value;
                         }
-                    })
+                    }
                 }
             } else {
                 throw new Error(`Argument not implemented: '${arg}'`);

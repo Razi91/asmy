@@ -1,6 +1,5 @@
-import Cpu, {ConditionCode, CpuRegs} from '../cpu'
+import Cpu, {Arg, ConditionCode, CpuRegs} from '../cpu'
 import Op from "../op";
-
 
 export const supported = ['add', 'sub', 'mul', 'div'];
 
@@ -11,16 +10,18 @@ export default abstract class Arithmetic extends Op {
     setStatus: boolean = false;
     signed: boolean = true;
 
-    abstract innerExe(): number;
+    abstract innerExe(a: Arg, b: Arg): number;
+
+    abstract updateStatus(result: number): void;
 
     protected constructor(protected cpu: Cpu, opcode: string, args: string[]) {
         super();
         this.args = cpu.getArgs(args);
         this.argLen = args.length;
-        this.setStatus = opcode.endsWith('s');
+        this.setStatus = opcode[3] == 's';
         this.condition = ConditionCode.AL;
         if (opcode.length > 3) {
-            let condition: string = opcode.substr(3, 2).toUpperCase();
+            let condition: string = opcode.substr(3 + (this.setStatus ? 1 : 0), 2).toUpperCase();
             if (condition.length == 2) {
                 this.condition = (ConditionCode as any)[condition];
             }
@@ -43,19 +44,23 @@ export default abstract class Arithmetic extends Op {
         throw new Error(`Unknown opcode: ${opcode}`);
     }
 
-
     exe() {
         if (this.condition != ConditionCode.AL) {
             if (!this.cpu.status.check(this.condition)) {
                 return false
             }
         }
-        let result = this.innerExe();
+        let result: number = 0;
+        if (this.argLen == 2) {
+            result = this.innerExe(this.args.a, this.args.b);
+        } else if (this.argLen >= 3) {
+            result = this.innerExe(this.args.b, this.args.c);
+        } else {
+            throw new Error('Invalid number of arguments');
+        }
+        this.args.a.set(result);
         if (this.setStatus) {
-            this.cpu.status.n = (result & 0x80000000) != 0;
-            this.cpu.status.z = this.args.a === 0;
-            this.cpu.status.c = this.signed ? result > 0x7fffffff : result > 0xffffffff;
-            this.cpu.status.v = result < 0;
+            this.updateStatus(result)
         }
         return true
     }
@@ -67,13 +72,15 @@ export class Add extends Arithmetic {
         super(cpu, opcode, args);
     }
 
-    innerExe() {
-        if (this.argLen == 2) {
-            return this.args.a = this.args.a + this.args.b;
-        } else if (this.argLen == 3) {
-            return this.args.a = this.args.b + this.args.c;
-        }
-        throw new Error('Invalid number of arguments');
+    innerExe(a: Arg, b: Arg) {
+        return a.get() + b.get();
+    }
+
+    updateStatus(result: number) {
+        this.cpu.status.n = (result & 0x80000000) != 0;
+        this.cpu.status.z = this.args.a.get() === 0;
+        this.cpu.status.c = this.signed ? result > 0x7fffffff : result > 0xffffffff;
+        this.cpu.status.v = result < 0;
     }
 }
 
@@ -83,13 +90,15 @@ export class Sub extends Arithmetic {
         super(cpu, opcode, args)
     }
 
-    innerExe() {
-        if (this.argLen == 2) {
-            return this.args.a = this.args.a - this.args.b;
-        } else if (this.argLen == 3) {
-            return this.args.a = this.args.b - this.args.c;
-        }
-        throw new Error('Invalid number of arguments');
+    innerExe(a: Arg, b: Arg) {
+        return a.get() - b.get();
+    }
+
+    updateStatus(result: number) {
+        this.cpu.status.n = (result & 0x80000000) != 0;
+        this.cpu.status.z = this.args.a.get() === 0;
+        this.cpu.status.c = result >= 0;
+        this.cpu.status.v = result >= 0x80000000 || result <= -0x80000000;
     }
 }
 
@@ -99,28 +108,27 @@ export class Mul extends Arithmetic {
         super(cpu, opcode, args);
     }
 
-    innerExe() {
-        if (this.argLen == 2) {
-            return this.args.a = this.args.a * this.args.b;
-        } else if (this.argLen == 3) {
-            return this.args.a = this.args.b * this.args.c;
-        }
-        throw new Error('Invalid number of arguments');
+    innerExe(a: Arg, b: Arg) {
+        return a.get() * b.get();
+    }
+
+    updateStatus(result: number) {
+        this.cpu.status.n = (result & 0x80000000) != 0;
+        this.cpu.status.z = this.args.a.get() === 0;
     }
 }
 
 
 export class Div extends Arithmetic {
     constructor(protected cpu: Cpu, opcode: string, args: string[]) {
-        super(cpu, opcode, args)
+        super(cpu, opcode, args);
     }
 
-    innerExe() {
-        if (this.argLen == 2) {
-            return this.args.a = this.args.a / this.args.b;
-        } else if (this.argLen == 3) {
-            return this.args.a = this.args.b / this.args.c;
-        }
-        throw new Error('Invalid number of arguments');
+    innerExe(a: Arg, b: Arg) {
+        return a.get() / b.get();
+    }
+
+    updateStatus(result: number) {
+        //literally nothing
     }
 }

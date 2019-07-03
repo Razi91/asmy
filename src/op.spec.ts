@@ -30,10 +30,19 @@ describe('OpCode decoder', () => {
         expect(simple[1]).to.equal('[r2, #-1]');
     });
 
+    it('throw error when argument not valid', () => {
+        expect(() => parseArguments('[r1], r')).to.throw();
+        expect(() => parseArguments('[r1, r')).to.throw();
+        expect(() => parseArguments('r1], r')).to.throw();
+    });
+
+    it('throws when unknown opcode', () => {
+        const cpu = new Cpu({});
+        expect(() =>cpu.createInstruction('wtf')).to.throw()
+    });
+
     it('decodes "nop" opcode correctly', () => {
-        const cpu = new Cpu({
-            program: 'nop'
-        });
+        const cpu = new Cpu({});
         expect(cpu.program[0].constructor).to.be.equal(Nop)
     });
 
@@ -72,11 +81,11 @@ describe('OpCode decoder', () => {
             }
         ];
         for (let op of tests) {
-            regs.a = op.regs[0];
-            regs.b = op.regs[1];
+            regs.a.set(op.regs[0]);
+            regs.b.set(op.regs[1]);
             let inst = cpu.createInstruction(`${op.code} r0, r1`);
             inst.exe();
-            expect(regs.a).to.equal(op.result)
+            expect(regs.a.get()).to.equal(op.result)
         }
     });
 
@@ -95,18 +104,70 @@ describe('OpCode decoder', () => {
         expect((cpu.program[0] as Arithmetic).setStatus).to.be.equal(true);
     });
 
-    it('sets status flags correctly', () => {
+    describe('Sets status flags correctly', () => {
         const cpu = new Cpu({
             program: 'adds r0, r1, r2'
         });
         let regs = cpu.getArgs(['r0', 'r1', 'r2']);
-        regs.b = 0xffffffff;
-        regs.c = 1;
-        cpu.doStep();
-        expect(cpu.status.n).to.be.equal(false);
-        expect(cpu.status.z).to.be.equal(true);
-        expect(cpu.status.c).to.be.equal(true);
-        expect(cpu.status.v).to.be.equal(false);
-    });
+        let tests = [{
+            code: 'adds r0, r1, r2',
+            args: [0xffffffff, 1],
+            result: [false, true, true, false]
+        }, {
+            code: 'adds r0, r1, r2',
+            args: [0, 1],
+            result: [false, false, false, false]
+        }, {
+            code: 'adds r0, r1, r2',
+            args: [-1, 1],
+            result: [false, true, true, false]
+        }, {
+            code: 'adds r0, r1, r2',
+            args: [-1, 2],
+            result: [false, false, true, false]
+        }, {
+            code: 'subs r0, r1, r2',
+            args: [1, 0],
+            result: [false, false, true, false]
+        }, {
+            code: 'subs r0, r1, r2',
+            args: [1, 1],
+            result: [false, true, true, false]
+        }, {
+            code: 'subs r0, r1, r2',
+            args: [0, 1],
+            result: [true, false, false, false]
+        }, {
+            code: 'muls r0, r1, r2',
+            args: [1, 1],
+            result: [false, false]
+        }, {
+            code: 'muls r0, r1, r2',
+            args: [0, 1],
+            result: [false, true]
+        }, {
+            code: 'muls r0, r1, r2',
+            args: [-1, 1],
+            result: [true, false]
+        }, {
+            code: 'muls r0, r1, r2',
+            args: [0x7fffffffff, 2],
+            result: [true, false]
+        }];
+        tests.forEach(test => {
+            it(`${test.code} ${test.args}`, () => {
+                regs.b.set(test.args[0]);
+                regs.c.set(test.args[1]);
+                let instr = cpu.createInstruction(test.code);
+                instr.exe();
+                expect(cpu.status.n).to.be.equal(test.result[0]);
+                expect(cpu.status.z).to.be.equal(test.result[1]);
+                if (test.result.length > 2) {
+                    expect(cpu.status.c).to.be.equal(test.result[2]);
+                    expect(cpu.status.v).to.be.equal(test.result[3]);
+                }
+            })
+        });
+    })
 
 });

@@ -38,7 +38,7 @@ describe('OpCode decoder', () => {
 
     it('throws when unknown opcode', () => {
         const cpu = new Cpu({});
-        expect(() =>cpu.createInstruction('wtf')).to.throw()
+        expect(() => cpu.createInstruction('wtf')).to.throw()
     });
 
     it('decodes "nop" opcode correctly', () => {

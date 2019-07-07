@@ -1,8 +1,8 @@
 import Op from "../op";
-import {CpuRegs} from "../cpu";
+import {Arg} from "../cpu";
 
 export default class Nop extends Op {
-    args: CpuRegs = {};
+    args: Arg[] = []
 
     constructor() {
         super();

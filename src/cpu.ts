@@ -1,5 +1,5 @@
 import Op from './op'
-import {decode} from './op'
+import { decode } from './op'
 
 export enum ConditionCode {
     EQ = 0x0000,
@@ -89,10 +89,9 @@ export function to32bit(value: number) {
 }
 
 class Cpu {
-    regs = new CpuRegs();
+    regs: CpuRegs = {};
     innerMemory: Uint32Array;
     status = new CpuStatus();
-    stack: Uint8Array;
     program: Op[];
     labels: { [key: string]: number } = {};
 
@@ -104,13 +103,13 @@ class Cpu {
             program = 'nop'
         } = options;
         let code = Array.isArray(program) ? program : program.split('\n');
-        this.innerMemory = new Uint32Array(32 * 1024);
-        this.stack = new Uint8Array(stackSize);
+        this.innerMemory = new Uint32Array(memorySize);
 
         let self = this;
         let createRegisters: string[] = [
             ...Array(registers).fill(0).map((_, i) => `r${i}`),
             'pc',
+            'fp',
             'sp',
             '_a'
         ];
@@ -123,18 +122,10 @@ class Cpu {
                     self.innerMemory[reg] = value;
                 }
             }
-            // Object.defineProperty(this.regs, createRegisters[reg], {
-            //     enumerable: true,
-            //     configurable: false,
-            //     get(): number {
-            //         return self.innerMemory[reg];
-            //     },
-            //     set(value: number) {
-            //         self.innerMemory[reg] = value;
-            //     },
-            // })
         }
         this.program = code.map(instruction => decode(this, instruction));
+        this.regs.sp.set(0x1000)
+        this.regs.fp.set(0x1000 + stackSize)
     }
 
     public doStep(): void {
@@ -156,48 +147,48 @@ class Cpu {
         return op;
     }
 
-    getArgs(names: string[]): CpuRegs {
+    getArgs(names: string[]): Arg[] {
         const cpu = this;
-        const ret: CpuRegs = {};
+        const ret: Arg[] = [];
         const regs = this.regs;
         const letters = ['a', 'b', 'c', 'd', 'e'];
         let i = 0;
         for (let arg of names) {
             if (regs.hasOwnProperty(arg)) {
-                ret[letters[i++]] = regs[arg]
+                ret.push(regs[arg])
             } else if (arg[0] == '#') {
                 const val = parseInt(arg.substr(1));
-                ret[letters[i++]] = {
+                ret.push({
                     get(): number {
                         return val
                     },
                     set() {
                         throw new Error('Trying to store in raw value');
                     }
-                }
+                })
             } else if (arg[0] == '[' && arg[arg.length - 1] == ']') {
                 if (arg.indexOf(',') !== -1) {
                     let args = arg.substr(1, arg.length - 2).split(',').map(s => s.trim());
                     let reg = args[0];
                     let offset = parseInt(args[1].substr(1));
-                    ret[letters[i++]] = {
+                    ret.push({
                         get(): number {
                             return cpu.innerMemory[regs[reg].get() + offset]
                         },
                         set(value: number) {
                             cpu.innerMemory[regs[reg].get() + offset] = value;
                         }
-                    }
+                    })
                 } else {
                     let reg = arg.substr(1, arg.length - 2);
-                    ret[letters[i++]] = {
+                    ret.push({
                         get(): number {
                             return cpu.innerMemory[regs[reg].get()]
                         },
                         set(value: number) {
                             cpu.innerMemory[regs[reg].get()] = value;
                         }
-                    }
+                    })
                 }
             } else {
                 throw new Error(`Argument not implemented: '${arg}'`);

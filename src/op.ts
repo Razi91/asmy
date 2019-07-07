@@ -1,5 +1,5 @@
 export default abstract class Op {
-    args: CpuRegs = {};
+    args: Arg[] = [];
 
     protected constructor() {
 
@@ -8,7 +8,7 @@ export default abstract class Op {
     abstract exe(): boolean;
 }
 
-import Cpu, {CpuRegs} from './cpu'
+import Cpu, {CpuRegs, Arg} from './cpu'
 import Nop from "./ops/nop";
 import Arithmetic, {supported} from "./ops/arithmetic";
 
@@ -49,9 +49,14 @@ export function decode(cpu: Cpu, code: string): Op {
         return new Nop()
     }
     let s = code.indexOf(' ');
-    let [opcode, args] = [code.substr(0, s), code.substr(s)];
+    let opcode, args
+    if (s == -1) {
+        [opcode, args] = [code, '']
+    } else {
+        [opcode, args] = [code.substr(0, s), code.substr(s)];
+    }
     if (supported.indexOf(opcode.substr(0, 3)) != -1) {
         return Arithmetic.create(cpu, opcode, parseArguments(args))
     }
-    throw new Error(`Unknown opcode ${code}`)
+    throw new Error(`Unknown opcode ${opcode} ; ${opcode.substr(0, 3)}`)
 }

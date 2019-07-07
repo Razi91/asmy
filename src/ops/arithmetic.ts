@@ -5,7 +5,7 @@ export const supported = ['add', 'sub', 'mul', 'div'];
 
 export default abstract class Arithmetic extends Op {
     condition: ConditionCode;
-    args: CpuRegs;
+    args: Arg[];
     argLen: number;
     setStatus: boolean = false;
     signed: boolean = true;
@@ -22,7 +22,11 @@ export default abstract class Arithmetic extends Op {
         this.condition = ConditionCode.AL;
         if (opcode.length > 3) {
             let condition: string = opcode.substr(3 + (this.setStatus ? 1 : 0), 2).toUpperCase();
+            
             if (condition.length == 2) {
+                if (!( condition in ConditionCode)) {
+                    throw new Error('Wrong condition code')
+                }
                 this.condition = (ConditionCode as any)[condition];
             }
         }
@@ -41,7 +45,7 @@ export default abstract class Arithmetic extends Op {
         if (opcode.startsWith('div')) {
             return new Div(cpu, opcode, args);
         }
-        throw new Error(`Unknown opcode: ${opcode}`);
+        throw new Error(`Unknown arithmetic opcode: ${opcode}`);
     }
 
     exe() {
@@ -52,13 +56,13 @@ export default abstract class Arithmetic extends Op {
         }
         let result: number = 0;
         if (this.argLen == 2) {
-            result = this.innerExe(this.args.a, this.args.b);
+            result = this.innerExe(this.args[0], this.args[1]);
         } else if (this.argLen >= 3) {
-            result = this.innerExe(this.args.b, this.args.c);
+            result = this.innerExe(this.args[1], this.args[2]);
         } else {
             throw new Error('Invalid number of arguments');
         }
-        this.args.a.set(result);
+        this.args[0].set(result);
         if (this.setStatus) {
             this.updateStatus(result)
         }
@@ -78,7 +82,7 @@ export class Add extends Arithmetic {
 
     updateStatus(result: number) {
         this.cpu.status.n = (result & 0x80000000) != 0;
-        this.cpu.status.z = this.args.a.get() === 0;
+        this.cpu.status.z = this.args[0].get() === 0;
         this.cpu.status.c = this.signed ? result > 0x7fffffff : result > 0xffffffff;
         this.cpu.status.v = result < 0;
     }
@@ -96,7 +100,7 @@ export class Sub extends Arithmetic {
 
     updateStatus(result: number) {
         this.cpu.status.n = (result & 0x80000000) != 0;
-        this.cpu.status.z = this.args.a.get() === 0;
+        this.cpu.status.z = this.args[0].get() === 0;
         this.cpu.status.c = result >= 0;
         this.cpu.status.v = result >= 0x80000000 || result <= -0x80000000;
     }
@@ -114,7 +118,7 @@ export class Mul extends Arithmetic {
 
     updateStatus(result: number) {
         this.cpu.status.n = (result & 0x80000000) != 0;
-        this.cpu.status.z = this.args.a.get() === 0;
+        this.cpu.status.z = this.args[0].get() === 0;
     }
 }
 

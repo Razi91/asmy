@@ -29,13 +29,13 @@ describe('Cpu\'s core is working', () => {
         it('can add 2 registers', () => {
             const cpu = new Cpu({});
             let regs = cpu.getArgs(['r0', 'r1', 'r2']);
-            regs.a.set(0x7fffffff);
-            regs.b.set(0x80000000);
-            regs.c.set(regs.a.get() + regs.b.get());
-            expect(regs.c.get()).to.equal(0xffffffff);
+            regs[0].set(0x7fffffff);
+            regs[1].set(0x80000000);
+            regs[2].set(regs[0].get() + regs[1].get());
+            expect(regs[2].get()).to.equal(0xffffffff);
             cpu.regs.r2.set(cpu.regs.r2.get() + 0x101);
-            expect(regs.c.get()).to.equal(0x100);
-            expect(regs.c.get()).to.equal(cpu.regs.r2.get());
+            expect(regs[2].get()).to.equal(0x100);
+            expect(regs[2].get()).to.equal(cpu.regs.r2.get());
         });
     });
 
@@ -63,39 +63,39 @@ describe('Cpu\'s core is working', () => {
     it('returns valid raw value', () => {
         const cpu = new Cpu({});
         let regs = cpu.getArgs(['#45']);
-        expect(regs.a.get()).to.equal(45);
+        expect(regs[0].get()).to.equal(45);
     });
 
     it('throws error when trying to save raw value', () => {
         const cpu = new Cpu({});
         let regs = cpu.getArgs(['#45']);
-        expect(() => regs.a.set(4)).to.throw();
+        expect(() => regs[0].set(4)).to.throw();
     });
 
     it('negative values', () => {
         const cpu = new Cpu({});
         let regs = cpu.getArgs(['r0']);
-        regs.a.set(-1);
-        expect(regs.a.get()).to.equal(0xffffffff)
+        regs[0].set(-1);
+        expect(regs[0].get()).to.equal(0xffffffff)
     });
 
     describe('Inner memory operations', () => {
         const cpu = new Cpu({
             stackSize: 8
         });
-        let arg = cpu.getArgs(['[sp, #-4]']);
+        let args = cpu.getArgs(['[sp, #-4]']);
 
         it('allows to save data on stack', () => {
             cpu.regs.sp.set(cpu.regs.sp.get() + 8);
             cpu.regs.r0.set(4);
-            arg.a.set(5);
-            expect(arg.a.get()).to.equal(5);
-            arg.a.set(0);
+            args[0].set(5);
+            expect(args[0].get()).to.equal(5);
+            args[0].set(0);
         });
 
         it('allows to read and store value from/in inner memory', () => {
-            arg.a.set(arg.a.get() + 5);
-            expect(arg.a.get()).to.equal(5);
+            args[0].set(args[0].get() + 5);
+            expect(args[0].get()).to.equal(5);
         })
     })
 

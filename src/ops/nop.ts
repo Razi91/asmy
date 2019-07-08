@@ -2,13 +2,13 @@ import Op from '../op';
 import { Arg } from '../cpu';
 
 export default class Nop extends Op {
-  args: Arg[] = [];
+    args: Arg[] = [];
 
-  constructor() {
-    super();
-  }
+    constructor() {
+        super();
+    }
 
-  exe() {
-    return true;
-  }
+    exe() {
+        return true;
+    }
 }

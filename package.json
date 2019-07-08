@@ -9,6 +9,7 @@
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
     "test": "mocha -r ts-node/register src/**/*.spec.ts",
+    "lint": "eslint  --fix 'src/**/*.{js,ts,tsx}' --quiet",
     "coverage": "nyc mocha -r ts-node/register src/**/*.spec.ts"
   },
   "devDependencies": {
@@ -21,9 +22,15 @@
     "@istanbuljs/nyc-config-typescript": "^0.1.3",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.7",
+    "@typescript-eslint/eslint-plugin": "^1.11.0",
+    "@typescript-eslint/parser": "^1.11.0",
     "chai": "^4.2.0",
+    "eslint": "^6.0.1",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-plugin-prettier": "^3.1.0",
     "mocha": "^6.1.4",
     "nyc": "^14.1.1",
+    "prettier": "^1.18.2",
     "source-map-support": "^0.5.12",
     "ts-node": "^8.3.0",
     "typescript": "^3.3.3"

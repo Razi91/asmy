@@ -1,5 +1,5 @@
 {
     "extends": "@istanbuljs/nyc-config-typescript",
-    "exclude": ["lib"],
+    "exclude": ["lib", ".eslintrc.js"],
     "all": true
 }

@@ -84,15 +84,11 @@ interface CpuOptions {
     program?: string | string[];
 }
 
-export function to32bit(value: number) {
-    return value;
-}
-
 class Cpu {
     regs: CpuRegs = {};
     innerMemory: Uint32Array;
     status = new CpuStatus();
-    program: Op[];
+    program: Op[] = [];
     labels: { [key: string]: number } = {};
 
     constructor(options: CpuOptions) {
@@ -125,9 +121,9 @@ class Cpu {
                 }
             };
         }
-        this.program = code.map(instruction => decode(this, instruction));
         this.regs.sp.set(0x1000);
         this.regs.fp.set(0x1000 + stackSize);
+        code.forEach(line => this.insertCode(line));
     }
 
     public doStep(): void {
@@ -140,8 +136,16 @@ class Cpu {
     }
 
     insertCode(code: string, segment?: string): void {
-        let op = decode(this, code);
-        this.program.push(op);
+        let labelRegex = /([a-z_][a-z0-9_]*):/;
+        if (labelRegex.test(code)) {
+            let label = labelRegex.exec(code);
+            if (label != null) {
+                this.labels[label[1]] = this.program.length;
+            }
+        } else {
+            let op = decode(this, code);
+            this.program.push(op);
+        }
     }
 
     createInstruction(code: string, segment?: string): Op {
@@ -153,8 +157,6 @@ class Cpu {
         const cpu = this;
         const ret: Arg[] = [];
         const regs = this.regs;
-        const letters = ['a', 'b', 'c', 'd', 'e'];
-        let i = 0;
         for (let arg of names) {
             if (regs.hasOwnProperty(arg)) {
                 ret.push(regs[arg]);
@@ -174,8 +176,8 @@ class Cpu {
                         .substr(1, arg.length - 2)
                         .split(',')
                         .map(s => s.trim());
-                    let reg = args[0];
-                    let offset = parseInt(args[1].substr(1));
+                    const reg = args[0];
+                    const offset = parseInt(args[1].substr(1));
                     ret.push({
                         get(): number {
                             return cpu.innerMemory[regs[reg].get() + offset];
@@ -185,7 +187,7 @@ class Cpu {
                         }
                     });
                 } else {
-                    let reg = arg.substr(1, arg.length - 2);
+                    const reg = arg.substr(1, arg.length - 2);
                     ret.push({
                         get(): number {
                             return cpu.innerMemory[regs[reg].get()];

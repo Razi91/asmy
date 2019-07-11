@@ -123,22 +123,21 @@ export class Div extends Arithmetic {
     }
 }
 
+const Types: {[key: string]: any} = {
+    'add': Add,
+    'sub': Sub,
+    'mul': Mul,
+    'div': Div
+}
+
 export function ArithmeticCreate(
     cpu: Cpu,
     opcode: string,
     args: string[]
 ): Arithmetic {
-    if (opcode.startsWith('add')) {
-        return new Add(cpu, opcode, args);
+    let code = opcode.slice(0, 3)
+    if (Object.keys(Types).indexOf(code) == -1) {
+        throw new Error(`Unknown arithmetic opcode: ${opcode}`);
     }
-    if (opcode.startsWith('sub')) {
-        return new Sub(cpu, opcode, args);
-    }
-    if (opcode.startsWith('mul')) {
-        return new Mul(cpu, opcode, args);
-    }
-    if (opcode.startsWith('div')) {
-        return new Div(cpu, opcode, args);
-    }
-    throw new Error(`Unknown arithmetic opcode: ${opcode}`);
+    return new Types[opcode.slice(0, 3)](cpu, opcode, args);
 }

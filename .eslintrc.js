@@ -7,7 +7,7 @@ module.exports = {
   ],
   rules: {
     "prettier/prettier": ["error", { "singleQuote": true }],
-    "@typescript-eslint/explicit-member-accessibility": "off",
+    "@typescript-eslint/explicit-member-accessibility": "off"
   },
   parserOptions: {
     ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features

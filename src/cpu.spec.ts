@@ -48,6 +48,14 @@ describe("Cpu's core is working", () => {
         expect(cpu.doStep).to.throw();
     });
 
+    it('recognizes label', () => {
+        const cpu = new Cpu({
+            program: ['sub r0, r0', 'start:']
+        });
+        expect(cpu.labels).to.have.key('start')
+        expect(cpu.labels['start']).to.equal(1)
+    });
+
     it('should progress program counter', () => {
         const cpu = new Cpu({
             stackSize: 2 << 16,
@@ -78,6 +86,20 @@ describe("Cpu's core is working", () => {
     });
 
     describe('Inner memory operations', () => {
+        const cpu = new Cpu({
+            stackSize: 8
+        });
+        let args = cpu.getArgs(['[r0]']);
+
+        it('allows to save data on pointer', () => {
+            cpu.regs.sp.set(cpu.regs.sp.get() + 8);
+            cpu.regs.r0.set(4);
+            args[0].set(5);
+            expect(args[0].get()).to.equal(5);
+            args[0].set(0);
+        });
+    });
+    describe('Stack pointer operations', () => {
         const cpu = new Cpu({
             stackSize: 8
         });

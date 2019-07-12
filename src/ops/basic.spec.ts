@@ -3,7 +3,7 @@ import 'mocha';
 
 import Cpu, { ConditionCode } from '../cpu';
 import Op, { parseArguments } from '../op';
-import Arithmetic, { Add, ArithmeticCreate } from './arithmetic';
+import Basic, { Add, ArithmeticCreate } from './basic';
 
 describe('Arithmetic opcodes', () => {
     it('decodes and performs arithmetic opcodes correctly', () => {
@@ -59,7 +59,7 @@ describe('Arithmetic opcodes', () => {
         const cpu = new Cpu({
             program: 'addle r0, r1'
         });
-        expect((cpu.program[0] as Arithmetic).condition).to.be.equal(
+        expect((cpu.program[0] as Basic).condition).to.be.equal(
             ConditionCode.LE
         );
     });
@@ -68,10 +68,10 @@ describe('Arithmetic opcodes', () => {
         const cpu = new Cpu({
             program: 'adds r0, r1'
         });
-        expect((cpu.program[0] as Arithmetic).condition).to.be.equal(
+        expect((cpu.program[0] as Basic).condition).to.be.equal(
             ConditionCode.AL
         );
-        expect((cpu.program[0] as Arithmetic).setStatus).to.be.equal(true);
+        expect((cpu.program[0] as Basic).setStatus).to.be.equal(true);
     });
 
     describe('Sets status flags correctly', () => {

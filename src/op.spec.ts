@@ -4,7 +4,7 @@ import 'mocha';
 import Cpu, { ConditionCode } from './cpu';
 import Op, { parseArguments } from './op';
 import Nop from './ops/nop';
-import Arithmetic, { Add, ArithmeticCreate } from './ops/arithmetic';
+import Basic, { Add, ArithmeticCreate } from './ops/basic';
 
 describe('OpCode decoder', () => {
     it('decodes simple arguments correctly', () => {

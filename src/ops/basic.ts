@@ -3,7 +3,7 @@ import Op from '../op';
 
 export const supported = ['add', 'sub', 'mul', 'div'];
 
-export default abstract class Arithmetic extends Op {
+export default abstract class Basic extends Op {
     cpu: Cpu;
     condition: ConditionCode;
     args: Arg[];
@@ -58,7 +58,7 @@ export default abstract class Arithmetic extends Op {
     }
 }
 
-export class Add extends Arithmetic {
+export class Add extends Basic {
     constructor(cpu: Cpu, opcode: string, args: string[]) {
         super(cpu, opcode, args);
     }
@@ -77,7 +77,7 @@ export class Add extends Arithmetic {
     }
 }
 
-export class Sub extends Arithmetic {
+export class Sub extends Basic {
     constructor(cpu: Cpu, opcode: string, args: string[]) {
         super(cpu, opcode, args);
     }
@@ -94,7 +94,7 @@ export class Sub extends Arithmetic {
     }
 }
 
-export class Mul extends Arithmetic {
+export class Mul extends Basic {
     constructor(cpu: Cpu, opcode: string, args: string[]) {
         super(cpu, opcode, args);
     }
@@ -109,7 +109,7 @@ export class Mul extends Arithmetic {
     }
 }
 
-export class Div extends Arithmetic {
+export class Div extends Basic {
     constructor(cpu: Cpu, opcode: string, args: string[]) {
         super(cpu, opcode, args);
     }
@@ -123,18 +123,47 @@ export class Div extends Arithmetic {
     }
 }
 
+export class And extends Basic {
+    constructor(cpu: Cpu, opcode: string, args: string[]) {
+        super(cpu, opcode, args);
+    }
+
+    innerExe(a: Arg, b: Arg) {
+        return a.get() / b.get();
+    }
+
+    updateStatus(result: number) {
+        this.cpu.status.n = (result & 0x80000000) != 0;
+        this.cpu.status.z = this.args[0].get() === 0;
+        this.cpu.status.c = result >= 0;
+    }
+}
+
 const Types: {[key: string]: any} = {
     'add': Add,
     'sub': Sub,
     'mul': Mul,
-    'div': Div
+    'div': Div,
+    'and': null,
+    'orr': null,
+    'eor': null,
+    'bic': null,
+    'asr': null,
+    'lsl': null,
+    'lsr': null,
+    'ror': null,
+
+    'cmp': null,
+    'cmn': null,
+    'tst': null,
+    'teq': null,
 }
 
 export function ArithmeticCreate(
     cpu: Cpu,
     opcode: string,
     args: string[]
-): Arithmetic {
+): Basic {
     let code = opcode.slice(0, 3)
     if (Object.keys(Types).indexOf(code) == -1) {
         throw new Error(`Unknown arithmetic opcode: ${opcode}`);

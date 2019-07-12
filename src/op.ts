@@ -8,7 +8,7 @@ export default abstract class Op {
 
 import Cpu, { CpuRegs, Arg } from './cpu';
 import Nop from './ops/nop';
-import { supported, ArithmeticCreate } from './ops/arithmetic';
+import { supported, ArithmeticCreate } from './ops/basic';
 
 export function parseArguments(code: string): string[] {
     let args: string[] = [];

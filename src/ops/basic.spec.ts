@@ -2,13 +2,12 @@ import { expect } from 'chai';
 import 'mocha';
 
 import Cpu, { ConditionCode } from '../cpu';
-import Op, { parseArguments } from '../op';
 import Basic, { Add, ArithmeticCreate } from './basic';
 
 describe('Arithmetic opcodes', () => {
     it('decodes and performs arithmetic opcodes correctly', () => {
         const cpu = new Cpu({});
-        let regs = cpu.getArgs(['r0', 'r1', 'r2']);
+        const regs = cpu.getArgs(['r0', 'r1', 'r2']);
         const tests = [
             {
                 code: 'add',
@@ -46,10 +45,10 @@ describe('Arithmetic opcodes', () => {
                 result: 3
             }
         ];
-        for (let op of tests) {
+        for (const op of tests) {
             regs[0].set(op.regs[0]);
             regs[1].set(op.regs[1]);
-            let inst = ArithmeticCreate(cpu, op.code, ['r0', 'r1']);
+            const inst = ArithmeticCreate(cpu, op.code, ['r0', 'r1']);
             inst.exe();
             expect(regs[0].get()).to.equal(op.result);
         }
@@ -78,8 +77,8 @@ describe('Arithmetic opcodes', () => {
         const cpu = new Cpu({
             program: 'adds r0, r1, r2'
         });
-        let regs = cpu.getArgs(['r0', 'r1', 'r2']);
-        let tests = [
+        const regs = cpu.getArgs(['r0', 'r1', 'r2']);
+        const tests = [
             {
                 code: 'adds',
                 args: [0xffffffff, 1],
@@ -140,7 +139,7 @@ describe('Arithmetic opcodes', () => {
             it(`${test.code} ${test.args}`, () => {
                 regs[1].set(test.args[0]);
                 regs[2].set(test.args[1]);
-                let instr = ArithmeticCreate(cpu, test.code, [
+                const instr = ArithmeticCreate(cpu, test.code, [
                     'r0',
                     'r1',
                     'r2'

@@ -1,5 +1,5 @@
-import Op from './op';
-import { decode } from './op';
+import Op from './ops/op';
+import Opcodes from './opcodes';
 
 export enum ConditionCode {
     EQ = 0x0000,
@@ -32,7 +32,7 @@ export class CpuStatus {
     }
 
     /**
-     *  Check
+     *  Check if condition is met
      * @param code
      */
     check(code: ConditionCode): boolean {
@@ -63,7 +63,11 @@ export class CpuStatus {
                 res = true;
                 break;
         }
-        return code & 0x1 ? !res : res;
+        if (code & 0x1) {
+            // invert if negation
+            res = !res;
+        }
+        return res;
     }
 }
 
@@ -92,17 +96,17 @@ class Cpu {
     labels: { [key: string]: number } = {};
 
     constructor(options: CpuOptions) {
-        let {
+        const {
             memorySize = 32 * 1024,
             stackSize = 2 << 16,
             registers = 10,
             program = 'nop'
         } = options;
-        let code = Array.isArray(program) ? program : program.split('\n');
+        const code = Array.isArray(program) ? program : program.split('\n');
         this.innerMemory = new Uint32Array(memorySize);
 
-        let self = this;
-        let createRegisters: string[] = [
+        const innerMemory = this.innerMemory;
+        const createRegisters: string[] = [
             ...Array(registers)
                 .fill(0)
                 .map((_, i) => `r${i}`),
@@ -111,13 +115,13 @@ class Cpu {
             'sp',
             '_a'
         ];
-        for (let reg in createRegisters) {
+        for (const reg in createRegisters) {
             this.regs[createRegisters[reg]] = {
                 get() {
-                    return self.innerMemory[reg];
+                    return innerMemory[reg];
                 },
                 set(value: number) {
-                    self.innerMemory[reg] = value;
+                    innerMemory[reg] = value;
                 }
             };
         }
@@ -127,7 +131,7 @@ class Cpu {
     }
 
     public doStep(): void {
-        let pc = this.regs.pc;
+        const pc = this.regs.pc;
         if (this.program.length <= pc.get()) {
             throw new Error(`Instruction at ${pc} not found`);
         }
@@ -136,28 +140,28 @@ class Cpu {
     }
 
     insertCode(code: string, segment?: string): void {
-        let labelRegex = /([a-z_][a-z0-9_]*):/;
+        const labelRegex = /([a-z_][a-z0-9_]*):/;
         if (labelRegex.test(code)) {
-            let label = labelRegex.exec(code);
+            const label = labelRegex.exec(code);
             if (label != null) {
                 this.labels[label[1]] = this.program.length;
             }
         } else {
-            let op = decode(this, code);
+            const op = Opcodes.decode(this, code);
             this.program.push(op);
         }
     }
 
     createInstruction(code: string, segment?: string): Op {
-        let op = decode(this, code);
+        const op = Opcodes.decode(this, code);
         return op;
     }
 
     getArgs(names: string[]): Arg[] {
-        const cpu = this;
+        const innerMemory = this.innerMemory;
         const ret: Arg[] = [];
         const regs = this.regs;
-        for (let arg of names) {
+        for (const arg of names) {
             if (regs.hasOwnProperty(arg)) {
                 ret.push(regs[arg]);
             } else if (arg[0] == '#') {
@@ -172,7 +176,7 @@ class Cpu {
                 });
             } else if (arg[0] == '[' && arg[arg.length - 1] == ']') {
                 if (arg.indexOf(',') !== -1) {
-                    let args = arg
+                    const args = arg
                         .substr(1, arg.length - 2)
                         .split(',')
                         .map(s => s.trim());
@@ -180,20 +184,20 @@ class Cpu {
                     const offset = parseInt(args[1].substr(1));
                     ret.push({
                         get(): number {
-                            return cpu.innerMemory[regs[reg].get() + offset];
+                            return innerMemory[regs[reg].get() + offset];
                         },
                         set(value: number) {
-                            cpu.innerMemory[regs[reg].get() + offset] = value;
+                            innerMemory[regs[reg].get() + offset] = value;
                         }
                     });
                 } else {
                     const reg = arg.substr(1, arg.length - 2);
                     ret.push({
                         get(): number {
-                            return cpu.innerMemory[regs[reg].get()];
+                            return innerMemory[regs[reg].get()];
                         },
                         set(value: number) {
-                            cpu.innerMemory[regs[reg].get()] = value;
+                            innerMemory[regs[reg].get()] = value;
                         }
                     });
                 }

@@ -2,12 +2,11 @@ import { expect } from 'chai';
 import 'mocha';
 
 import Cpu from './cpu';
-import Op from './op';
 
 describe("Cpu's core is working", () => {
     describe('Registers validity', () => {
         it('should have valid Gaeneral Purpouse registers', () => {
-            let testRegisters = 10;
+            const testRegisters = 10;
             const cpu = new Cpu({
                 registers: testRegisters
             });
@@ -27,7 +26,7 @@ describe("Cpu's core is working", () => {
 
         it('can add 2 registers', () => {
             const cpu = new Cpu({});
-            let regs = cpu.getArgs(['r0', 'r1', 'r2']);
+            const regs = cpu.getArgs(['r0', 'r1', 'r2']);
             regs[0].set(0x7fffffff);
             regs[1].set(0x80000000);
             regs[2].set(regs[0].get() + regs[1].get());
@@ -52,8 +51,8 @@ describe("Cpu's core is working", () => {
         const cpu = new Cpu({
             program: ['sub r0, r0', 'start:']
         });
-        expect(cpu.labels).to.have.key('start')
-        expect(cpu.labels['start']).to.equal(1)
+        expect(cpu.labels).to.have.key('start');
+        expect(cpu.labels['start']).to.equal(1);
     });
 
     it('should progress program counter', () => {
@@ -68,19 +67,19 @@ describe("Cpu's core is working", () => {
 
     it('returns valid raw value', () => {
         const cpu = new Cpu({});
-        let regs = cpu.getArgs(['#45']);
+        const regs = cpu.getArgs(['#45']);
         expect(regs[0].get()).to.equal(45);
     });
 
     it('throws error when trying to save raw value', () => {
         const cpu = new Cpu({});
-        let regs = cpu.getArgs(['#45']);
+        const regs = cpu.getArgs(['#45']);
         expect(() => regs[0].set(4)).to.throw();
     });
 
     it('negative values', () => {
         const cpu = new Cpu({});
-        let regs = cpu.getArgs(['r0']);
+        const regs = cpu.getArgs(['r0']);
         regs[0].set(-1);
         expect(regs[0].get()).to.equal(0xffffffff);
     });
@@ -89,7 +88,7 @@ describe("Cpu's core is working", () => {
         const cpu = new Cpu({
             stackSize: 8
         });
-        let args = cpu.getArgs(['[r0]']);
+        const args = cpu.getArgs(['[r0]']);
 
         it('allows to save data on pointer', () => {
             cpu.regs.sp.set(cpu.regs.sp.get() + 8);
@@ -103,7 +102,7 @@ describe("Cpu's core is working", () => {
         const cpu = new Cpu({
             stackSize: 8
         });
-        let args = cpu.getArgs(['[sp, #-4]']);
+        const args = cpu.getArgs(['[sp, #-4]']);
 
         it('allows to save data on stack', () => {
             cpu.regs.sp.set(cpu.regs.sp.get() + 8);

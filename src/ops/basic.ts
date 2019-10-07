@@ -1,5 +1,5 @@
 import Cpu, { Arg, ConditionCode, CpuRegs } from '../cpu';
-import Op from '../op';
+import Op from './op';
 
 export const supported = ['add', 'sub', 'mul', 'div'];
 
@@ -8,8 +8,8 @@ export default abstract class Basic extends Op {
     condition: ConditionCode;
     args: Arg[];
     argLen: number;
-    setStatus: boolean = false;
-    signed: boolean = true;
+    setStatus = false;
+    signed = true;
 
     abstract innerExe(a: Arg, b: Arg): number;
 
@@ -23,7 +23,7 @@ export default abstract class Basic extends Op {
         this.setStatus = opcode[3] == 's';
         this.condition = ConditionCode.AL;
         if (opcode.length > 3) {
-            let condition: string = opcode
+            const condition: string = opcode
                 .substr(3 + (this.setStatus ? 1 : 0), 2)
                 .toUpperCase();
 
@@ -139,32 +139,32 @@ export class And extends Basic {
     }
 }
 
-const Types: {[key: string]: any} = {
-    'add': Add,
-    'sub': Sub,
-    'mul': Mul,
-    'div': Div,
-    'and': null,
-    'orr': null,
-    'eor': null,
-    'bic': null,
-    'asr': null,
-    'lsl': null,
-    'lsr': null,
-    'ror': null,
+const Types: { [key: string]: any } = {
+    add: Add,
+    sub: Sub,
+    mul: Mul,
+    div: Div,
+    and: null,
+    orr: null,
+    eor: null,
+    bic: null,
+    asr: null,
+    lsl: null,
+    lsr: null,
+    ror: null,
 
-    'cmp': null,
-    'cmn': null,
-    'tst': null,
-    'teq': null,
-}
+    cmp: null,
+    cmn: null,
+    tst: null,
+    teq: null
+};
 
 export function ArithmeticCreate(
     cpu: Cpu,
     opcode: string,
     args: string[]
 ): Basic {
-    let code = opcode.slice(0, 3)
+    const code = opcode.slice(0, 3);
     if (Object.keys(Types).indexOf(code) == -1) {
         throw new Error(`Unknown arithmetic opcode: ${opcode}`);
     }

@@ -1,4 +1,4 @@
-import Op from '../op';
+import Op from './op';
 import { Arg } from '../cpu';
 
 export default class Nop extends Op {

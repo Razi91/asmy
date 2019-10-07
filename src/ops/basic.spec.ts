@@ -10,6 +10,21 @@ describe('Arithmetic opcodes', () => {
         const regs = cpu.getArgs(['r0', 'r1', 'r2']);
         const tests = [
             {
+                code: 'mov',
+                regs: [0, 4],
+                result: 4
+            },
+            {
+                code: 'mov',
+                regs: [0, 0xffffffff - 1],
+                result: 0xffffffff - 1
+            },
+            {
+                code: 'mov',
+                regs: [0xffffffff + 1],
+                result: 0
+            },
+            {
                 code: 'add',
                 regs: [4, 5],
                 result: 9
@@ -71,6 +86,13 @@ describe('Arithmetic opcodes', () => {
             ConditionCode.AL
         );
         expect((cpu.program[0] as Basic).setStatus).to.be.equal(true);
+    });
+
+    it('decodes NOP correctly', () => {
+        const cpu = new Cpu({
+            program: 'nop'
+        });
+        expect(() => cpu.doStep).to.not.throw();
     });
 
     describe('Sets status flags correctly', () => {

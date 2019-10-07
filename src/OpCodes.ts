@@ -1,16 +1,21 @@
-import Cpu, { CpuRegs, Arg } from './cpu';
-import Nop from './ops/Nop';
-import { supported, ArithmeticCreate } from './ops/basic';
+import Cpu from './cpu';
 import Op from './ops/op';
+import { init as basicInit } from './ops/basic';
+import { init as nopInit } from './ops/Nop';
 
-const opcodes = new Map<string, Op>();
+type OpConstruct = (cpu: Cpu, opCode: string, args: string[]) => Op;
 
-export default {
-    register(name: string, opcode: Op) {
-        opcodes.set(name, opcode);
-    },
+const opCodesMap = new Map<string, OpConstruct>();
+
+export class OpCodesType {
+    register(name: string, opCode: OpConstruct) {
+        opCodesMap.set(name, opCode);
+    }
 
     parseArguments(code: string): string[] {
+        if (code.length == 0) {
+            return [];
+        }
         const args: string[] = [];
         const stack = [];
         let begin = 0;
@@ -20,7 +25,9 @@ export default {
             if ((c == ',' || c == '\n') && stack.length == 0) {
                 const arg = code.substr(begin, i - begin).trim();
                 if (arg.length < 2) {
-                    throw new Error(`Argument ${arg} too short`);
+                    throw new Error(
+                        `Argument ${arg} too short (code: ${code})`
+                    );
                 }
                 args.push(arg);
                 begin = i + 1;
@@ -40,12 +47,9 @@ export default {
             throw new Error('Invalid syntax, mismatch ]');
         }
         return args;
-    },
+    }
 
     decode(cpu: Cpu, code: string): Op {
-        if (code == 'nop') {
-            return new Nop();
-        }
         const s = code.indexOf(' ');
         let opcode, args;
         if (s == -1) {
@@ -53,9 +57,20 @@ export default {
         } else {
             [opcode, args] = [code.substr(0, s), code.substr(s)];
         }
-        if (supported.indexOf(opcode.substr(0, 3)) != -1) {
-            return ArithmeticCreate(cpu, opcode, this.parseArguments(args));
+        const initial = opcode.substr(0, 3);
+        if (opCodesMap.has(initial) && opCodesMap.get(initial) != null) {
+            const ctor = opCodesMap.get(initial)!;
+            const op = ctor(cpu, opcode, this.parseArguments(args));
+            return op;
         }
-        throw new Error(`Unknown opcode ${opcode} ; ${opcode.substr(0, 3)}`);
+        throw new Error(`Unknown opcode ${opcode}`);
     }
-};
+}
+
+const instance = new OpCodesType();
+Object.freeze(instance);
+
+basicInit(instance);
+nopInit(instance);
+
+export default instance;

@@ -1,5 +1,6 @@
 import Op from './ops/op';
-import Opcodes from './opcodes';
+import Opcodes from './OpCodes';
+import { Arg, literalArg, offsetArg, regArg } from './Arg';
 
 export enum ConditionCode {
     EQ = 0x0000,
@@ -69,12 +70,6 @@ export class CpuStatus {
         }
         return res;
     }
-}
-
-export interface Arg {
-    get(): number;
-
-    set(value: number): void;
 }
 
 export class CpuRegs {
@@ -158,7 +153,6 @@ class Cpu {
     }
 
     getArgs(names: string[]): Arg[] {
-        const innerMemory = this.innerMemory;
         const ret: Arg[] = [];
         const regs = this.regs;
         for (const arg of names) {
@@ -166,14 +160,7 @@ class Cpu {
                 ret.push(regs[arg]);
             } else if (arg[0] == '#') {
                 const val = parseInt(arg.substr(1));
-                ret.push({
-                    get(): number {
-                        return val;
-                    },
-                    set() {
-                        throw new Error('Trying to store in raw value');
-                    }
-                });
+                ret.push(literalArg(val));
             } else if (arg[0] == '[' && arg[arg.length - 1] == ']') {
                 if (arg.indexOf(',') !== -1) {
                     const args = arg
@@ -182,24 +169,10 @@ class Cpu {
                         .map(s => s.trim());
                     const reg = args[0];
                     const offset = parseInt(args[1].substr(1));
-                    ret.push({
-                        get(): number {
-                            return innerMemory[regs[reg].get() + offset];
-                        },
-                        set(value: number) {
-                            innerMemory[regs[reg].get() + offset] = value;
-                        }
-                    });
+                    ret.push(offsetArg(this.innerMemory, regs[reg], offset));
                 } else {
                     const reg = arg.substr(1, arg.length - 2);
-                    ret.push({
-                        get(): number {
-                            return innerMemory[regs[reg].get()];
-                        },
-                        set(value: number) {
-                            innerMemory[regs[reg].get()] = value;
-                        }
-                    });
+                    ret.push(regArg(this.innerMemory, regs[reg]));
                 }
             } else {
                 throw new Error(`Argument not implemented: '${arg}'`);

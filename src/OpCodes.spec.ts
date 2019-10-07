@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 
 import Cpu, { ConditionCode } from './cpu';
-import Opcodes from './opcodes';
+import Opcodes from './OpCodes';
 import Nop from './ops/Nop';
 
 describe('OpCode decoder', () => {

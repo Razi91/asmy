@@ -1,5 +1,8 @@
-import Cpu, { Arg, ConditionCode, CpuRegs } from '../cpu';
+import Cpu, { ConditionCode } from '../cpu';
+import OpCodes, { OpCodesType } from '../OpCodes';
 import Op from './op';
+import { Arg } from '../Arg';
+import Nop from './Nop';
 
 export const supported = ['add', 'sub', 'mul', 'div'];
 
@@ -139,12 +142,42 @@ export class And extends Basic {
     }
 }
 
+export class Mov extends Basic {
+    constructor(cpu: Cpu, opcode: string, args: string[]) {
+        super(cpu, opcode, args);
+    }
+
+    innerExe(a: Arg, b: Arg) {
+        return b.get();
+    }
+
+    updateStatus(result: number) {}
+}
+
+export class Cmp extends Basic {
+    constructor(cpu: Cpu, opcode: string, args: string[]) {
+        super(cpu, opcode, args);
+    }
+
+    innerExe(a: Arg, b: Arg) {
+        return a.get() - b.get();
+    }
+
+    updateStatus(result: number) {
+        this.cpu.status.n = (result & 0x80000000) != 0;
+        this.cpu.status.z = this.args[0].get() === 0;
+        this.cpu.status.c = result >= 0;
+        this.cpu.status.v = result >= 0x80000000 || result <= -0x80000000;
+    }
+}
+
 const Types: { [key: string]: any } = {
+    mov: Mov,
     add: Add,
     sub: Sub,
     mul: Mul,
     div: Div,
-    and: null,
+    and: And,
     orr: null,
     eor: null,
     bic: null,
@@ -169,4 +202,13 @@ export function ArithmeticCreate(
         throw new Error(`Unknown arithmetic opcode: ${opcode}`);
     }
     return new Types[opcode.slice(0, 3)](cpu, opcode, args);
+}
+
+export function init(OpCodes: OpCodesType): void {
+    Object.entries(Types).forEach(([k, V]) => {
+        if (V == null) {
+            return;
+        }
+        OpCodes.register(k, (cpu, opcode, a) => new V(cpu, opcode, a));
+    });
 }

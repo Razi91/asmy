@@ -3,7 +3,7 @@ import 'mocha';
 
 import Cpu, { ConditionCode } from './cpu';
 import Opcodes from './OpCodes';
-import Nop from './ops/Nop';
+import { Nop } from './ops/basic';
 
 describe('OpCode decoder', () => {
     it('decodes simple arguments correctly', () => {

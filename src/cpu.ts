@@ -88,7 +88,7 @@ class Cpu {
     innerMemory: Uint32Array;
     status = new CpuStatus();
     program: Op[] = [];
-    labels: { [key: string]: number } = {};
+    labels: Map<string, number> = new Map();
 
     constructor(options: CpuOptions) {
         const {
@@ -106,6 +106,7 @@ class Cpu {
                 .fill(0)
                 .map((_, i) => `r${i}`),
             'pc',
+            'lr',
             'fp',
             'sp',
             '_a'
@@ -125,13 +126,25 @@ class Cpu {
         code.forEach(line => this.insertCode(line));
     }
 
-    public doStep(): void {
+    public doStep(): boolean {
         const pc = this.regs.pc;
         if (this.program.length <= pc.get()) {
-            throw new Error(`Instruction at ${pc} not found`);
+            throw new Error(`Instruction at ${pc.get()} not found`);
         }
-        this.program[pc.get()].exe();
-        this.regs.pc.set(pc.get() + 1);
+        const ptr = pc.get();
+        pc.set(ptr + 1);
+        this.program[ptr].exe();
+        if (pc.get() < this.program.length) {
+            return true;
+        } else if (pc.get() == this.program.length) {
+            return false;
+        } else {
+            throw new Error(
+                `Invalid Program Counter value ${pc.get()} / ${
+                    this.program.length
+                }`
+            );
+        }
     }
 
     insertCode(code: string, segment?: string): void {
@@ -139,12 +152,19 @@ class Cpu {
         if (labelRegex.test(code)) {
             const label = labelRegex.exec(code);
             if (label != null) {
-                this.labels[label[1]] = this.program.length;
+                this.labels.set(label[1], this.program.length);
             }
         } else {
             const op = Opcodes.decode(this, code);
             this.program.push(op);
         }
+    }
+
+    getLabelPtr(name: string): number {
+        if (this.labels.has(name)) {
+            return this.labels.get(name)!;
+        }
+        throw new Error(`Label ${name} not found`);
     }
 
     createInstruction(code: string, segment?: string): Op {

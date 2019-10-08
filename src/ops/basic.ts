@@ -2,13 +2,13 @@ import Cpu, { ConditionCode } from '../cpu';
 import OpCodes, { OpCodesType } from '../OpCodes';
 import Op from './op';
 import { Arg } from '../Arg';
-import Nop from './Nop';
 
 export const supported = ['add', 'sub', 'mul', 'div'];
 
 export default abstract class Basic extends Op {
     cpu: Cpu;
     condition: ConditionCode;
+    assign: boolean;
     args: Arg[];
     argLen: number;
     setStatus = false;
@@ -20,6 +20,7 @@ export default abstract class Basic extends Op {
 
     protected constructor(cpu: Cpu, opcode: string, args: string[]) {
         super();
+        this.assign = true;
         this.cpu = cpu;
         this.args = cpu.getArgs(args);
         this.argLen = args.length;
@@ -157,6 +158,7 @@ export class Mov extends Basic {
 export class Cmp extends Basic {
     constructor(cpu: Cpu, opcode: string, args: string[]) {
         super(cpu, opcode, args);
+        this.assign = false;
     }
 
     innerExe(a: Arg, b: Arg) {
@@ -171,7 +173,20 @@ export class Cmp extends Basic {
     }
 }
 
+export class Nop extends Op {
+    args: Arg[] = [];
+
+    constructor() {
+        super();
+    }
+
+    exe() {
+        return true;
+    }
+}
+
 const Types: { [key: string]: any } = {
+    nop: Nop,
     mov: Mov,
     add: Add,
     sub: Sub,

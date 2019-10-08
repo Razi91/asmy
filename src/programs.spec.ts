@@ -9,9 +9,9 @@ describe('Example programs runs correctly', () => {
         const cpu = new Cpu({
             program
         });
-        for (let i = 0; i < program.length; i++) {
-            cpu.doStep();
-        }
+        expect(() => {
+            while (cpu.doStep());
+        }).to.not.throw();
         expect(cpu.regs.r0.get()).to.be.equal(1);
         expect(cpu.regs.r1.get()).to.be.equal(4);
         expect(cpu.regs.r2.get()).to.be.equal(5);
@@ -27,9 +27,9 @@ describe('Example programs runs correctly', () => {
         const cpu = new Cpu({
             program
         });
-        for (let i = 0; i < program.length; i++) {
-            cpu.doStep();
-        }
+        expect(() => {
+            while (cpu.doStep());
+        }).to.not.throw();
         expect(cpu.regs.r0.get()).to.be.equal(1);
         expect(cpu.regs.r1.get()).to.be.equal(4);
         expect(cpu.regs.r2.get()).to.be.equal(5);

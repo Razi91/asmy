@@ -1,7 +1,7 @@
 import Cpu from './cpu';
 import Op from './ops/op';
 import { init as basicInit } from './ops/basic';
-import { init as nopInit } from './ops/Nop';
+import { init as branchInit } from './ops/branch';
 
 type OpConstruct = (cpu: Cpu, opCode: string, args: string[]) => Op;
 
@@ -71,6 +71,6 @@ const instance = new OpCodesType();
 Object.freeze(instance);
 
 basicInit(instance);
-nopInit(instance);
+branchInit(instance);
 
 export default instance;

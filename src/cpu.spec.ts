@@ -52,7 +52,9 @@ describe("Cpu's core is working", () => {
             program: ['sub r0, r0', 'start:']
         });
         expect(cpu.labels).to.have.key('start');
-        expect(cpu.labels['start']).to.equal(1);
+        expect(() => cpu.getLabelPtr('start')).to.not.throw();
+        expect(() => cpu.getLabelPtr('error')).to.throw();
+        expect(cpu.getLabelPtr('start')).to.equal(1);
     });
 
     it('should progress program counter', () => {

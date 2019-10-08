@@ -51,19 +51,19 @@ export class OpCodesType {
 
     decode(cpu: Cpu, code: string): Op {
         const s = code.indexOf(' ');
-        let opcode, args;
+        let opCode, args;
         if (s == -1) {
-            [opcode, args] = [code, ''];
+            [opCode, args] = [code, ''];
         } else {
-            [opcode, args] = [code.substr(0, s), code.substr(s)];
+            [opCode, args] = [code.substr(0, s), code.substr(s)];
         }
-        const initial = opcode.substr(0, 3);
+        const initial = opCode.substr(0, 3);
         if (opCodesMap.has(initial) && opCodesMap.get(initial) != null) {
             const ctor = opCodesMap.get(initial)!;
-            const op = ctor(cpu, opcode, this.parseArguments(args));
+            const op = ctor(cpu, opCode, this.parseArguments(args));
             return op;
         }
-        throw new Error(`Unknown opcode ${opcode}`);
+        throw new Error(`Unknown opcode ${opCode}`);
     }
 }
 

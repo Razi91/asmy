@@ -1,5 +1,5 @@
 import Cpu, { ConditionCode } from '../cpu';
-import OpCodes, { OpCodesType } from '../OpCodes';
+import { OpCodesType } from '../OpCodes';
 import Op from './op';
 import { Arg } from '../Arg';
 
@@ -152,7 +152,9 @@ export class Mov extends Basic {
         return b.get();
     }
 
-    updateStatus(result: number) {}
+    updateStatus(result: number) {
+        throw new Error(`Mov opCode doesn't change CPU status registers`);
+    }
 }
 
 export class Cmp extends Basic {
@@ -201,7 +203,7 @@ const Types: { [key: string]: any } = {
     lsr: null,
     ror: null,
 
-    cmp: null,
+    cmp: Cmp,
     cmn: null,
     tst: null,
     teq: null

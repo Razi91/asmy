@@ -34,7 +34,6 @@ export default class Branch extends Op {
     exe() {
         if (this.condition != ConditionCode.AL) {
             if (!this.cpu.status.check(this.condition)) {
-                console.log('false');
                 return false;
             }
         }

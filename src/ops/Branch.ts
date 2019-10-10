@@ -55,7 +55,8 @@ export class Branch extends Op {
 const BranchTypes: OpCodesList = {
     b: [Branch, false, true],
     bl: [Branch, false, true],
-    bx: [Branch, false, true]
+    bx: [Branch, false, true],
+    blx: [Branch, false, true]
 };
 
 export default function() {

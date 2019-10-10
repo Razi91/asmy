@@ -85,7 +85,8 @@ interface CpuOptions {
 
 class Cpu {
     regs: CpuRegs = {};
-    innerMemory: Uint32Array;
+    innerMemory: ArrayBuffer;
+    dataView: DataView;
     status = new CpuStatus();
     program: Op[] = [];
     labels: Map<string, number> = new Map();
@@ -98,26 +99,27 @@ class Cpu {
             program = 'nop'
         } = options;
         const code = Array.isArray(program) ? program : program.split('\n');
-        this.innerMemory = new Uint32Array(memorySize);
+        this.innerMemory = new ArrayBuffer(memorySize);
+        const innerMemory32 = new Uint32Array(this.innerMemory);
+        this.dataView = new DataView(this.innerMemory);
 
-        const innerMemory = this.innerMemory;
         const createRegisters: string[] = [
             ...Array(registers)
                 .fill(0)
                 .map((_, i) => `r${i}`),
-            'pc',
-            'lr',
             'fp',
             'sp',
+            'lr',
+            'pc',
             '_a'
         ];
         for (const reg in createRegisters) {
             this.regs[createRegisters[reg]] = {
                 get() {
-                    return innerMemory[reg];
+                    return innerMemory32[reg];
                 },
                 set(value: number) {
-                    innerMemory[reg] = value;
+                    innerMemory32[reg] = value;
                 }
             };
         }
@@ -173,6 +175,8 @@ class Cpu {
     }
 
     getArgs(names: string[]): Arg[] {
+        const dataView = this.dataView;
+
         const ret: Arg[] = [];
         const regs = this.regs;
         for (const arg of names) {
@@ -189,10 +193,10 @@ class Cpu {
                         .map(s => s.trim());
                     const reg = args[0];
                     const offset = parseInt(args[1].substr(1));
-                    ret.push(offsetArg(this.innerMemory, regs[reg], offset));
+                    ret.push(offsetArg(dataView, regs[reg], offset));
                 } else {
                     const reg = arg.substr(1, arg.length - 2);
-                    ret.push(regArg(this.innerMemory, regs[reg]));
+                    ret.push(regArg(dataView, regs[reg]));
                 }
             } else {
                 throw new Error(`Argument not implemented: '${arg}'`);

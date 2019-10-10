@@ -1,12 +1,21 @@
+export enum DataType {
+    U8,
+    I8,
+    U16,
+    I16,
+    U32,
+    I32
+}
+
 export interface Arg {
-    get(): number;
+    get(type?: DataType): number;
 
     set(value: number): void;
 }
 
 export function literalArg(value: number): Arg {
     return {
-        get(): number {
+        get(type?: DataType): number {
             return value;
         },
         set() {
@@ -16,27 +25,27 @@ export function literalArg(value: number): Arg {
 }
 
 export function offsetArg(
-    innerMemory: Uint32Array,
+    innerMemory: DataView,
     register: Arg,
     offset: number
 ): Arg {
     return {
-        get(): number {
-            return innerMemory[register.get() + offset];
+        get(type?: DataType): number {
+            return innerMemory.getUint32(register.get() + offset);
         },
-        set(value: number) {
-            innerMemory[register.get() + offset] = value;
+        set(value: number, type?: DataType) {
+            innerMemory.setUint32(register.get() + offset, value);
         }
     };
 }
 
-export function regArg(innerMemory: Uint32Array, register: Arg): Arg {
+export function regArg(innerMemory: DataView, register: Arg): Arg {
     return {
-        get(): number {
-            return innerMemory[register.get()];
+        get(type?: DataType): number {
+            return innerMemory.getUint32(register.get());
         },
-        set(value: number) {
-            innerMemory[register.get()] = value;
+        set(value: number, type?: DataType) {
+            innerMemory.setUint32(register.get(), value);
         }
     };
 }

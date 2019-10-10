@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import Cpu from './cpu';
+import Cpu from './Cpu';
 
 describe("Cpu's core is working", () => {
     describe('Registers validity', () => {

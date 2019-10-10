@@ -1,9 +1,9 @@
-import Cpu from './cpu';
+import Cpu from './Cpu';
 import Op from './ops/op';
-import { init as basicInit } from './ops/basic';
-import { init as branchInit } from './ops/branch';
+import getBasicOps from './ops/BasicOps';
+import getBranchTypes from './ops/Branch';
 
-type OpConstruct = (cpu: Cpu, opCode: string, args: string[]) => Op;
+export type OpConstruct = (cpu: Cpu, opCode: string, args: string[]) => Op;
 
 const opCodesMap = new Map<string, OpConstruct>();
 
@@ -57,20 +57,61 @@ export class OpCodesType {
         } else {
             [opCode, args] = [code.substr(0, s), code.substr(s)];
         }
-        const initial = opCode.substr(0, 3);
-        if (opCodesMap.has(initial) && opCodesMap.get(initial) != null) {
-            const ctor = opCodesMap.get(initial)!;
+        if (opCodesMap.has(opCode) && opCodesMap.get(opCode) != null) {
+            const ctor = opCodesMap.get(opCode)!;
             const op = ctor(cpu, opCode, this.parseArguments(args));
             return op;
         }
-        throw new Error(`Unknown opcode ${opCode}`);
+        throw new Error(`Unknown opcode ${opCode} [${code}]`);
     }
 }
 
 const instance = new OpCodesType();
 Object.freeze(instance);
 
-basicInit(instance);
-branchInit(instance);
+const CONDITION_LABELS = [
+    'eq',
+    'ne',
+    'hs',
+    'cs',
+    'lo',
+    'cc',
+    'mi',
+    'pl',
+    'vs',
+    'vc',
+    'hi',
+    'ls',
+    'ge',
+    'lt',
+    'gt',
+    'le',
+    'al'
+];
+
+export type OpCodesList = { [key: string]: [any, boolean, boolean] };
+
+function init(opCodes: OpCodesList): void {
+    Object.entries(opCodes).forEach(([k, [V, setStatus, conditional]]) => {
+        const handler: OpConstruct = (cpu, opCode, a) => new V(cpu, opCode, a);
+        instance.register(k, handler);
+        if (conditional) {
+            CONDITION_LABELS.forEach(cond => {
+                instance.register(k + cond, handler);
+                if (setStatus) {
+                    instance.register(k + cond + 's', handler);
+                }
+            });
+        }
+        if (setStatus) {
+            instance.register(k + 's', handler);
+        }
+    });
+}
+
+init(getBasicOps());
+init(getBranchTypes());
+
+// console.log(Array.from(opCodesMap.keys()).filter(k => k.startsWith('add')));
 
 export default instance;

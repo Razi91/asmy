@@ -1,11 +1,11 @@
-import Cpu, { ConditionCode } from '../cpu';
-import { OpCodesType } from '../OpCodes';
+import Cpu, { ConditionCode } from '../Cpu';
+import { OpCodesList } from '../OpCodes';
 import Op from './op';
 import { Arg } from '../Arg';
 
 export const supported = ['add', 'sub', 'mul', 'div'];
 
-export default abstract class Basic extends Op {
+export abstract class Basic extends Op {
     cpu: Cpu;
     condition: ConditionCode;
     assign: boolean;
@@ -54,7 +54,9 @@ export default abstract class Basic extends Op {
         } else {
             throw new Error('Invalid number of arguments');
         }
-        this.args[0].set(result);
+        if (this.assign) {
+            this.args[0].set(result);
+        }
         if (this.setStatus) {
             this.updateStatus(result);
         }
@@ -161,6 +163,7 @@ export class Cmp extends Basic {
     constructor(cpu: Cpu, opcode: string, args: string[]) {
         super(cpu, opcode, args);
         this.assign = false;
+        this.setStatus = true;
     }
 
     innerExe(a: Arg, b: Arg) {
@@ -169,7 +172,7 @@ export class Cmp extends Basic {
 
     updateStatus(result: number) {
         this.cpu.status.n = (result & 0x80000000) != 0;
-        this.cpu.status.z = this.args[0].get() === 0;
+        this.cpu.status.z = this.args[0].get() === this.args[1].get();
         this.cpu.status.c = result >= 0;
         this.cpu.status.v = result >= 0x80000000 || result <= -0x80000000;
     }
@@ -187,26 +190,26 @@ export class Nop extends Op {
     }
 }
 
-const Types: { [key: string]: any } = {
-    nop: Nop,
-    mov: Mov,
-    add: Add,
-    sub: Sub,
-    mul: Mul,
-    div: Div,
-    and: And,
-    orr: null,
-    eor: null,
-    bic: null,
-    asr: null,
-    lsl: null,
-    lsr: null,
-    ror: null,
+const BasicOps: OpCodesList = {
+    nop: [Nop, false, false],
+    mov: [Mov, false, true],
+    add: [Add, true, true],
+    sub: [Sub, true, true],
+    mul: [Mul, true, true],
+    div: [Div, true, true],
+    and: [And, true, true],
+    // orr: null,
+    // eor: null,
+    // bic: null,
+    // asr: null,
+    // lsl: null,
+    // lsr: null,
+    // ror: null,
 
-    cmp: Cmp,
-    cmn: null,
-    tst: null,
-    teq: null
+    cmp: [Cmp, false, true]
+    // cmn: null,
+    // tst: null,
+    // teq: null
 };
 
 export function ArithmeticCreate(
@@ -215,17 +218,12 @@ export function ArithmeticCreate(
     args: string[]
 ): Basic {
     const code = opcode.slice(0, 3);
-    if (Object.keys(Types).indexOf(code) == -1) {
+    if (Object.keys(BasicOps).indexOf(code) == -1) {
         throw new Error(`Unknown arithmetic opcode: ${opcode}`);
     }
-    return new Types[opcode.slice(0, 3)](cpu, opcode, args);
+    return new BasicOps[opcode.slice(0, 3)]![0](cpu, opcode, args);
 }
 
-export function init(OpCodes: OpCodesType): void {
-    Object.entries(Types).forEach(([k, V]) => {
-        if (V == null) {
-            return;
-        }
-        OpCodes.register(k, (cpu, opcode, a) => new V(cpu, opcode, a));
-    });
+export default function() {
+    return BasicOps;
 }

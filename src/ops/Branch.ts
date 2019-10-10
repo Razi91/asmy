@@ -1,10 +1,10 @@
 import Op from './op';
-import Cpu, { ConditionCode } from '../cpu';
+import Cpu, { ConditionCode } from '../Cpu';
 import { Arg } from '../Arg';
-import { OpCodesType } from '../OpCodes';
-import { Add, And, Div, Mov, Mul, Nop, Sub } from './basic';
+import { OpCodesList, OpCodesType, OpConstruct } from '../OpCodes';
+import { Add, And, Div, Mov, Mul, Nop, Sub } from './BasicOps';
 
-export default class Branch extends Op {
+export class Branch extends Op {
     cpu: Cpu;
     condition: ConditionCode;
     assign: boolean;
@@ -37,7 +37,12 @@ export default class Branch extends Op {
                 return false;
             }
         }
-        const ptr = this.cpu.getLabelPtr(this.label);
+        let ptr;
+        if (this.label in this.cpu.regs) {
+            ptr = this.cpu.regs[this.label].get();
+        } else {
+            ptr = this.cpu.getLabelPtr(this.label);
+        }
         const now = this.cpu.regs.pc.get();
         this.cpu.regs.pc.set(ptr);
         if (this.link) {
@@ -47,16 +52,12 @@ export default class Branch extends Op {
     }
 }
 
-const Types: { [key: string]: any } = {
-    b: Branch,
-    bl: Branch
+const BranchTypes: OpCodesList = {
+    b: [Branch, false, true],
+    bl: [Branch, false, true],
+    bx: [Branch, false, true]
 };
 
-export function init(OpCodes: OpCodesType): void {
-    Object.entries(Types).forEach(([k, V]) => {
-        if (V == null) {
-            return;
-        }
-        OpCodes.register(k, (cpu, opcode, a) => new V(cpu, opcode, a));
-    });
+export default function() {
+    return BranchTypes;
 }

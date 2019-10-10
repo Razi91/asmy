@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import Cpu, { ConditionCode } from './cpu';
+import Cpu, { ConditionCode } from './Cpu';
 import Opcodes from './OpCodes';
-import { Nop } from './ops/basic';
+import { Nop } from './ops/BasicOps';
 
 describe('OpCode decoder', () => {
     it('decodes simple arguments correctly', () => {

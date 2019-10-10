@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import Cpu from '../cpu';
+import Cpu from '../Cpu';
 
 describe('Branching', () => {
     it('Simple branch', () => {
@@ -21,7 +21,7 @@ describe('Branching', () => {
         expect(cpu.regs.r0.get()).to.be.equal(2);
         expect(cpu.regs.lr.get()).to.be.equal(2);
     });
-    it.skip('Conditional branch', () => {
+    it('Conditional branch', () => {
         const program = [
             'mov r0, #2',
             'cmp r0, #2',

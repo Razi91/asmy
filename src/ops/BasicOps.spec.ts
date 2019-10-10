@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import Cpu, { ConditionCode } from '../cpu';
-import Basic, { Add, ArithmeticCreate } from './basic';
+import Cpu, { ConditionCode } from '../Cpu';
+import { Basic, ArithmeticCreate } from './BasicOps';
 
 describe('Arithmetic opcodes', () => {
     it('decodes and performs arithmetic opcodes correctly', () => {

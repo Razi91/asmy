@@ -23,6 +23,9 @@ export abstract class Basic extends Op {
         this.assign = true;
         this.cpu = cpu;
         this.args = cpu.getArgs(args);
+        if (this.args.filter(arg => arg.isPointer).length != 0) {
+            throw new Error('Pointer registers are not allowed in this opcode');
+        }
         this.argLen = args.length;
         this.setStatus = opcode[3] == 's';
         this.condition = ConditionCode.AL;
@@ -135,7 +138,7 @@ export class And extends Basic {
     }
 
     innerExe(a: Arg, b: Arg) {
-        return a.get() / b.get();
+        return a.get() & b.get();
     }
 
     updateStatus(result: number) {

@@ -2,6 +2,7 @@ import Cpu from './Cpu';
 import Op from './ops/op';
 import getBasicOps from './ops/BasicOps';
 import getBranchTypes from './ops/Branch';
+import getMemoryTransferTypes from './ops/MemoryTransfer';
 
 export type OpConstruct = (cpu: Cpu, opCode: string, args: string[]) => Op;
 
@@ -40,6 +41,10 @@ export class OpCodesType {
             if (c == ']') {
                 if (stack.pop() != '[') {
                     throw new Error('Invalid syntax, mismatch ]');
+                } else {
+                    if (code[i + 1] == '!') {
+                        i++;
+                    }
                 }
             }
         }
@@ -111,6 +116,7 @@ function init(opCodes: OpCodesList): void {
 
 init(getBasicOps());
 init(getBranchTypes());
+init(getMemoryTransferTypes());
 
 // console.log(Array.from(opCodesMap.keys()).filter(k => k.startsWith('add')));
 

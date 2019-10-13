@@ -1,3 +1,5 @@
+import Cpu from './Cpu';
+
 export enum DataType {
     U8,
     I8,
@@ -8,14 +10,21 @@ export enum DataType {
 }
 
 export interface Arg {
-    get(type?: DataType): number;
+    isPointer?: boolean;
+    isLiteral?: boolean;
+    value?: number;
+    source?: string | any;
+
+    get(preview?: boolean): number;
 
     set(value: number): void;
 }
 
 export function literalArg(value: number): Arg {
     return {
-        get(type?: DataType): number {
+        value,
+        isLiteral: true,
+        get(): number {
             return value;
         },
         set() {
@@ -24,28 +33,42 @@ export function literalArg(value: number): Arg {
     };
 }
 
-export function offsetArg(
-    innerMemory: DataView,
-    register: Arg,
-    offset: number
-): Arg {
+export function labelArg(cpu: Cpu, label: string): Arg {
     return {
-        get(type?: DataType): number {
-            return innerMemory.getUint32(register.get() + offset);
+        source: label,
+        get(): number {
+            return cpu.getLabelPtr(label);
         },
-        set(value: number, type?: DataType) {
-            innerMemory.setUint32(register.get() + offset, value);
+        set() {
+            throw new Error('Trying to modify label value');
         }
     };
 }
 
-export function regArg(innerMemory: DataView, register: Arg): Arg {
+export function sumArg(args: Arg[], applyOffset: boolean): Arg {
+    if (applyOffset && (args.length != 2 || !args[args.length - 1].isLiteral)) {
+        throw new Error('Last argument must be literal value');
+    }
     return {
-        get(type?: DataType): number {
-            return innerMemory.getUint32(register.get());
+        isPointer: true,
+        source: args,
+        get(preview?: boolean): number {
+            const offset = args[args.length - 1].get();
+            if (preview) {
+                return args.reduce((val, reg) => val + reg.get(true), 0);
+            }
+            const ret = args.reduce((val, reg) => val + reg.get(), 0);
+            if (applyOffset) {
+                args[args.length - 2].set(args[args.length - 2].get() + offset);
+            }
+            return ret;
         },
-        set(value: number, type?: DataType) {
-            innerMemory.setUint32(register.get(), value);
+        set(value: number) {
+            if (args.length == 1) {
+                args[0].set(args[0].get() + value);
+                return;
+            }
+            throw new Error('Read only argument');
         }
     };
 }

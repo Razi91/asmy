@@ -1,6 +1,6 @@
 import Op from './ops/op';
 import Opcodes from './OpCodes';
-import { Arg, literalArg, offsetArg, regArg } from './Arg';
+import { Arg, literalArg, sumArg } from './Arg';
 
 export enum ConditionCode {
     EQ = 0b0000,
@@ -115,6 +115,7 @@ class Cpu {
         ];
         for (const reg in createRegisters) {
             this.regs[createRegisters[reg]] = {
+                source: createRegisters[reg],
                 get() {
                     return innerMemory32[reg];
                 },
@@ -149,6 +150,23 @@ class Cpu {
         }
     }
 
+    run(timelimit: number, log: null | ((op: Op) => void) = null) {
+        const start = new Date();
+        while (1) {
+            const now = new Date();
+            if (timelimit > 0 && +now - +start > timelimit) {
+                throw new Error('Timelimit');
+            }
+            const op = this.program[this.regs.pc.get()];
+            if (this.doStep() == false) {
+                break;
+            }
+            if (log) {
+                log(op);
+            }
+        }
+    }
+
     insertCode(code: string, segment?: string): void {
         const labelRegex = /(\.?[A-z_][A-z0-9_]*):/;
         if (labelRegex.test(code)) {
@@ -175,31 +193,32 @@ class Cpu {
     }
 
     getArgs(names: string[]): Arg[] {
-        const dataView = this.dataView;
-
         const ret: Arg[] = [];
         const regs = this.regs;
+
         for (const arg of names) {
             if (regs.hasOwnProperty(arg)) {
                 ret.push(regs[arg]);
             } else if (arg[0] == '#') {
                 const val = parseInt(arg.substr(1));
                 ret.push(literalArg(val));
-            } else if (arg[0] == '[' && arg[arg.length - 1] == ']') {
-                if (arg.indexOf(',') !== -1) {
-                    const args = arg
-                        .substr(1, arg.length - 2)
-                        .split(',')
-                        .map(s => s.trim());
-                    const reg = args[0];
-                    const offset = parseInt(args[1].substr(1));
-                    ret.push(offsetArg(dataView, regs[reg], offset));
-                } else {
-                    const reg = arg.substr(1, arg.length - 2);
-                    ret.push(regArg(dataView, regs[reg]));
+            } else if (arg[0] == '[') {
+                let applyOffset = false;
+                if (arg.endsWith(']!')) {
+                    applyOffset = true;
+                } else if (!arg.endsWith(']')) {
+                    throw new Error(`Mismatch ']'`);
                 }
+                const list = arg
+                    .slice(1, -1)
+                    .split(',')
+                    .map(arg => arg.trim());
+                const args = this.getArgs(list);
+                ret.push(sumArg(args, applyOffset));
             } else {
-                throw new Error(`Argument not implemented: '${arg}'`);
+                throw new Error(
+                    `Argument not implemented: '${arg} (parsed from [${names}])'`
+                );
             }
         }
         return ret;

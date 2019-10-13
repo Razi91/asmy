@@ -58,6 +58,11 @@ describe('Arithmetic opcodes', () => {
                 code: 'div',
                 regs: [15, 4],
                 result: 3
+            },
+            {
+                code: 'and',
+                regs: [15, 255],
+                result: 15
             }
         ];
         for (const op of tests) {
@@ -96,10 +101,6 @@ describe('Arithmetic opcodes', () => {
     });
 
     describe('Sets status flags correctly', () => {
-        const cpu = new Cpu({
-            program: 'adds r0, r1, r2'
-        });
-        const regs = cpu.getArgs(['r0', 'r1', 'r2']);
         const tests = [
             {
                 code: 'adds',
@@ -159,6 +160,10 @@ describe('Arithmetic opcodes', () => {
         ];
         tests.forEach(test => {
             it(`${test.code} ${test.args}`, () => {
+                const cpu = new Cpu({
+                    program: 'adds r0, r1, r2'
+                });
+                const regs = cpu.getArgs(['r0', 'r1', 'r2']);
                 regs[1].set(test.args[0]);
                 regs[2].set(test.args[1]);
                 const instr = ArithmeticCreate(cpu, test.code, [

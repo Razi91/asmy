@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 
 import Cpu from './Cpu';
+import Op from './ops/op';
 
 describe('Example programs runs correctly', () => {
     it('Basic arithmetic', () => {
@@ -88,7 +89,7 @@ describe('Example programs runs correctly', () => {
         expect(cpu.regs.r0.get()).to.be.equal(1024);
     });
 
-    it.skip('Executes real ARM rot13 code', () => {
+    it('Executes real ARM rot13 code', () => {
         const program = [
             'rot13:',
             '	add	r1, r0, r1',
@@ -96,7 +97,7 @@ describe('Example programs runs correctly', () => {
             '	cmp	r0, r1',
             '	bxeq	lr',
             '	ldrb	r3, [r0], #1',
-            '	cmp	r3, #96',
+            '	cmp	r3, #96', // < 'a'
             '	bls	.L2',
             '	cmp	r3, #110',
             '	addls	r3, r3, #13',
@@ -119,7 +120,8 @@ describe('Example programs runs correctly', () => {
         cpu.regs.r1.set(testString.length);
         cpu.regs.pc.set(0);
         cpu.regs.lr.set(cpu.getLabelPtr('end'));
-        while (cpu.doStep());
+
+        expect(() => cpu.run(1024)).to.not.throw();
 
         for (let i = 0; i < testString.length; i++) {
             expect(cpu.dataView.getUint8(memoryStart + i)).to.be.equal(

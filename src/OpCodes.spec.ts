@@ -2,26 +2,26 @@ import { expect } from 'chai';
 import 'mocha';
 
 import Cpu, { ConditionCode } from './Cpu';
-import Opcodes from './OpCodes';
+import OpCodes from './OpCodes';
 import { Nop } from './ops/BasicOps';
 
 describe('OpCode decoder', () => {
     it('decodes simple arguments correctly', () => {
-        const simple = Opcodes.parseArguments('r1,r2');
+        const simple = OpCodes.parseArguments('r1,r2');
         expect(simple.length).to.equal(2);
         expect(simple[0]).to.equal('r1');
         expect(simple[1]).to.equal('r2');
     });
 
     it('throws with invalid arguments', () => {
-        expect(() => Opcodes.parseArguments('r1],r2')).to.throw();
-        expect(() => Opcodes.parseArguments('[r1,r2')).to.throw();
-        expect(() => Opcodes.parseArguments('[r1],[[r2')).to.throw();
-        expect(() => Opcodes.parseArguments('[r1],[r2]]')).to.throw();
+        expect(() => OpCodes.parseArguments('r1],r2')).to.throw();
+        expect(() => OpCodes.parseArguments('[r1,r2')).to.throw();
+        expect(() => OpCodes.parseArguments('[r1],[[r2')).to.throw();
+        expect(() => OpCodes.parseArguments('[r1],[r2]]')).to.throw();
     });
 
     it('decodes addressed arguments correctly', () => {
-        const simple = Opcodes.parseArguments('r1, [r2], [r3]');
+        const simple = OpCodes.parseArguments('r1, [r2], [r3]');
         expect(simple.length).to.equal(3);
         expect(simple[0]).to.equal('r1');
         expect(simple[1]).to.equal('[r2]');
@@ -29,16 +29,23 @@ describe('OpCode decoder', () => {
     });
 
     it('decodes relative arguments correctly', () => {
-        const simple = Opcodes.parseArguments('[r1], [r2, #-1], [r3]');
+        const simple = OpCodes.parseArguments('[r1], [r2, #-1], [r3]');
         expect(simple.length).to.equal(3);
         expect(simple[0]).to.equal('[r1]');
         expect(simple[1]).to.equal('[r2, #-1]');
     });
 
+    it('decodes relative arguments correctly', () => {
+        const simple = OpCodes.parseArguments('r1, [r2, #4]!');
+        expect(simple.length).to.equal(2);
+        expect(simple[0]).to.equal('r1');
+        expect(simple[1]).to.equal('[r2, #4]!');
+    });
+
     it('throw error when argument not valid', () => {
-        expect(() => Opcodes.parseArguments('[r1], r')).to.throw();
-        expect(() => Opcodes.parseArguments('[r1], r')).to.throw();
-        expect(() => Opcodes.parseArguments('r1], r3')).to.throw();
+        expect(() => OpCodes.parseArguments('r1], r3')).to.throw();
+        expect(() => OpCodes.parseArguments('r1,, r2')).to.throw();
+        expect(() => OpCodes.parseArguments('r1, r2,')).to.throw();
     });
 
     it('throws when unknown opcode', () => {

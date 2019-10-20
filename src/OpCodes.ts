@@ -1,10 +1,10 @@
 import Cpu from './Cpu';
 import Op from './ops/op';
-import getBasicOps from './ops/BasicOps';
-import getBranchTypes from './ops/Branch';
-import getMemoryTransferTypes from './ops/MemoryTransfer';
+import BasicOps from './ops/BasicOps';
+import MemoryTransfer from './ops/MemoryTransfer';
+import Branch from './ops/Branch';
 
-export type OpConstruct = (cpu: Cpu, opCode: string, args: string[]) => Op;
+export type OpConstruct = (cpu: Cpu, rawArgs: string[]) => Op;
 
 const opCodesMap = new Map<string, OpConstruct>();
 
@@ -64,7 +64,7 @@ export class OpCodesType {
         }
         if (opCodesMap.has(opCode) && opCodesMap.get(opCode) != null) {
             const ctor = opCodesMap.get(opCode)!;
-            const op = ctor(cpu, opCode, this.parseArguments(args));
+            const op = ctor(cpu, this.parseArguments(args));
             return op;
         }
         throw new Error(`Unknown opcode ${opCode} [${code}]`);
@@ -74,7 +74,7 @@ export class OpCodesType {
 const instance = new OpCodesType();
 Object.freeze(instance);
 
-const CONDITION_LABELS = [
+export const CONDITION_LABELS = [
     'eq',
     'ne',
     'hs',
@@ -94,30 +94,14 @@ const CONDITION_LABELS = [
     'al'
 ];
 
-export type OpCodesList = { [key: string]: [any, boolean, boolean] };
-
-function init(opCodes: OpCodesList): void {
-    Object.entries(opCodes).forEach(([k, [V, setStatus, conditional]]) => {
-        const handler: OpConstruct = (cpu, opCode, a) => new V(cpu, opCode, a);
-        instance.register(k, handler);
-        if (conditional) {
-            CONDITION_LABELS.forEach(cond => {
-                instance.register(k + cond, handler);
-                if (setStatus) {
-                    instance.register(k + cond + 's', handler);
-                }
-            });
-        }
-        if (setStatus) {
-            instance.register(k + 's', handler);
-        }
-    });
-}
-
-init(getBasicOps());
-init(getBranchTypes());
-init(getMemoryTransferTypes());
-
-// console.log(Array.from(opCodesMap.keys()).filter(k => k.startsWith('add')));
+Object.entries(BasicOps).forEach(([name, Op]) => {
+    instance.register(name, (cpu: Cpu, args: string[]) => new Op(cpu, args));
+});
+Object.entries(MemoryTransfer).forEach(([name, Op]) => {
+    instance.register(name, (cpu: Cpu, args: string[]) => new Op(cpu, args));
+});
+Object.entries(Branch).forEach(([name, Op]) => {
+    instance.register(name, (cpu: Cpu, args: string[]) => new Op(cpu, args));
+});
 
 export default instance;

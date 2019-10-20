@@ -1,8 +1,15 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import Cpu, { ConditionCode } from '../Cpu';
-import { Basic, ArithmeticCreate } from './BasicOps';
+import Cpu from '../Cpu';
+import { ConditionCode } from '../Arg';
+import Opcodes from '../OpCodes';
+import Op from './op';
+
+interface Basic extends Op {
+    condition: ConditionCode;
+    setsStatus: boolean;
+}
 
 describe('Arithmetic opcodes', () => {
     it('decodes and performs arithmetic opcodes correctly', () => {
@@ -68,8 +75,8 @@ describe('Arithmetic opcodes', () => {
         for (const op of tests) {
             regs[0].set(op.regs[0]);
             regs[1].set(op.regs[1]);
-            const inst = ArithmeticCreate(cpu, op.code, ['r0', 'r1']);
-            inst.exe();
+            const instr = Opcodes.decode(cpu, `${op.code} r0, r1`);
+            instr.exe();
             expect(regs[0].get()).to.equal(op.result);
         }
     });
@@ -90,7 +97,7 @@ describe('Arithmetic opcodes', () => {
         expect((cpu.program[0] as Basic).condition).to.be.equal(
             ConditionCode.AL
         );
-        expect((cpu.program[0] as Basic).setStatus).to.be.equal(true);
+        expect((cpu.program[0] as Basic).setsStatus).to.be.equal(true);
     });
 
     it('decodes NOP correctly', () => {
@@ -166,12 +173,8 @@ describe('Arithmetic opcodes', () => {
                 const regs = cpu.getArgs(['r0', 'r1', 'r2']);
                 regs[1].set(test.args[0]);
                 regs[2].set(test.args[1]);
-                const instr = ArithmeticCreate(cpu, test.code, [
-                    'r0',
-                    'r1',
-                    'r2'
-                ]);
-                instr.exe();
+                const instr = Opcodes.decode(cpu, `${test.code} r0, r1, r2`);
+                instr.exe(cpu);
                 expect(cpu.status.n).to.be.equal(test.result[0]);
                 expect(cpu.status.z).to.be.equal(test.result[1]);
                 if (test.result.length > 2) {

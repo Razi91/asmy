@@ -1,7 +1,6 @@
 import { Arg } from '../Arg';
+import Cpu from '../Cpu';
 
-export default abstract class Op {
-    args: Arg[] = [];
-
-    abstract exe(): boolean;
+export default interface Op {
+    exe(cpu?: Cpu): boolean;
 }

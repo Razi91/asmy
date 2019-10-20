@@ -29,9 +29,9 @@ describe('Example programs runs correctly', () => {
         const cpu = new Cpu({
             program
         });
-        expect(() => {
-            while (cpu.doStep());
-        }).to.not.throw();
+
+        expect(() => cpu.run(1024)).to.not.throw();
+
         expect(cpu.regs.r0.get()).to.be.equal(1);
         expect(cpu.regs.r1.get()).to.be.equal(4);
         expect(cpu.regs.r2.get()).to.be.equal(5);
@@ -56,7 +56,8 @@ describe('Example programs runs correctly', () => {
         cpu.regs.r0.set(5);
         cpu.regs.pc.set(0);
         cpu.regs.lr.set(cpu.getLabelPtr('end'));
-        while (cpu.doStep());
+
+        expect(() => cpu.run(1024)).to.not.throw();
 
         expect(cpu.regs.r0.get()).to.be.equal(120);
     });
@@ -84,7 +85,8 @@ describe('Example programs runs correctly', () => {
         cpu.regs.r1.set(10);
         cpu.regs.pc.set(0);
         cpu.regs.lr.set(cpu.getLabelPtr('end'));
-        while (cpu.doStep());
+
+        expect(() => cpu.run(1024)).to.not.throw();
 
         expect(cpu.regs.r0.get()).to.be.equal(1024);
     });

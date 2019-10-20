@@ -1,26 +1,6 @@
 import Op from './ops/op';
 import Opcodes from './OpCodes';
-import { Arg, literalArg, sumArg } from './Arg';
-
-export enum ConditionCode {
-    EQ = 0b0000,
-    NE = 0b0001,
-    HS = 0b0010, // alternative
-    CS = 0b0010,
-    LO = 0b0011, // alternative
-    CC = 0b0011,
-    MI = 0b0100,
-    PL = 0b0101,
-    VS = 0b0110,
-    VC = 0b0111,
-    HI = 0b1000,
-    LS = 0b1001,
-    GE = 0b1010,
-    LT = 0b1011,
-    GT = 0b1100,
-    LE = 0b1101,
-    AL = 0b1110
-}
+import { Arg, ConditionCode, literalArg, sumArg } from './Arg';
 
 export class CpuStatus {
     n = false; // negative
@@ -136,7 +116,7 @@ class Cpu {
         }
         const ptr = pc.get();
         pc.set(ptr + 1);
-        this.program[ptr].exe();
+        this.program[ptr].exe(this);
         if (pc.get() < this.program.length) {
             return true;
         } else if (pc.get() == this.program.length) {

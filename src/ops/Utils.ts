@@ -3,12 +3,15 @@ import Cpu from '../Cpu';
 import Op from './op';
 import BasicOps from './BasicOps';
 
+export const B32 = 0xffffffff;
+
 export type OpPrototype = {
     skipAssign?: boolean;
     skipConditionals?: boolean;
     exe: (cpu: Cpu, a: Arg, b: Arg) => number;
     forceStatus?: boolean;
     updateStatus?: (cpu: Cpu, args: Arg[], result: number) => void;
+    argsNumber?: [number, number];
 };
 
 export type OpPrototypes = { [key: string]: OpPrototype };
@@ -18,7 +21,7 @@ type OpCreatorArg = {
     operation: (cpu: Cpu, arg1: Arg, arg2: Arg) => number;
     updateStatus?: (cpu: Cpu, args: Arg[], result: number) => void;
     skipAssign?: boolean;
-    args?: [number, number];
+    argsNumber?: [number, number];
 };
 
 export function createOperation({
@@ -26,14 +29,23 @@ export function createOperation({
     operation,
     updateStatus,
     skipAssign = false,
-    args
+    argsNumber
 }: OpCreatorArg) {
     return class implements Op {
         args: Arg[] | null = null;
         condition = condition;
         setsStatus = updateStatus != null;
 
-        constructor(public cpu: Cpu, public rawArgs: string[]) {}
+        constructor(public cpu: Cpu, public rawArgs: string[]) {
+            if (argsNumber != null) {
+                if (
+                    rawArgs.length < argsNumber[0] ||
+                    rawArgs.length > argsNumber[1]
+                ) {
+                    throw new Error('Invalid number of arguments');
+                }
+            }
+        }
 
         exe(cpu?: Cpu) {
             if (cpu == null) {
@@ -75,14 +87,16 @@ export function createOpCodesConditionals(
         BasicOps[name] = createOperation({
             condition: ConditionCode.AL,
             operation: definition.exe,
-            skipAssign: definition.skipAssign
+            skipAssign: definition.skipAssign,
+            argsNumber: definition.argsNumber
         });
         if (definition.updateStatus) {
             BasicOps[name + 's'] = createOperation({
                 condition: ConditionCode.AL,
                 operation: definition.exe,
                 updateStatus: definition.updateStatus,
-                skipAssign: definition.skipAssign
+                skipAssign: definition.skipAssign,
+                argsNumber: definition.argsNumber
             });
         }
         if (!definition.skipConditionals) {
@@ -93,7 +107,8 @@ export function createOpCodesConditionals(
                 ] = createOperation({
                     condition: cond,
                     operation: definition.exe,
-                    skipAssign: definition.skipAssign
+                    skipAssign: definition.skipAssign,
+                    argsNumber: definition.argsNumber
                 });
                 if (definition.updateStatus) {
                     BasicOps[
@@ -102,7 +117,8 @@ export function createOpCodesConditionals(
                         condition: cond,
                         operation: definition.exe,
                         updateStatus: definition.updateStatus,
-                        skipAssign: definition.skipAssign
+                        skipAssign: definition.skipAssign,
+                        argsNumber: definition.argsNumber
                     });
                 }
             }

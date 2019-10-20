@@ -86,7 +86,7 @@ describe("Cpu's core is working", () => {
         expect(regs[0].get()).to.equal(0xffffffff);
     });
 
-    describe.skip('Inner memory operations', () => {
+    describe('Inner memory operations', () => {
         //TODO: fix
         it('allows to save data on pointer', () => {
             const cpu = new Cpu({
@@ -98,11 +98,20 @@ describe("Cpu's core is working", () => {
             expect(() => cpu.doStep()).to.not.throw();
             expect(cpu.dataView.getUint32(cpu.regs.sp.get())).to.be.equal(125);
         });
-    });
-
-    describe.skip('Stack pointer operations', () => {
-        it('allows to save data on stack', () => {});
-
-        it('allows to read and store value from/in inner memory', () => {});
+        it('allows to read and store value from/in inner memory', () => {
+            const cpu = new Cpu({
+                stackSize: 8,
+                program: [
+                    'mov r0, #128',
+                    'str r0, [sp]',
+                    'mov r0, #0',
+                    'ldr r0, [sp]'
+                ]
+            });
+            cpu.regs.sp.set(cpu.regs.sp.get());
+            expect(() => cpu.run(1024)).to.not.throw();
+            expect(cpu.dataView.getUint32(cpu.regs.sp.get())).to.be.equal(128);
+            expect(cpu.regs.r0.get()).to.be.equal(128);
+        });
     });
 });

@@ -9,7 +9,7 @@ describe('Branching', () => {
         const cpu = new Cpu({
             program
         });
-        while (cpu.doStep());
+        expect(() => cpu.run(1024)).to.not.throw();
         expect(cpu.regs.r0.get()).to.be.equal(2);
     });
     it('Branch link', () => {
@@ -17,7 +17,7 @@ describe('Branching', () => {
         const cpu = new Cpu({
             program
         });
-        while (cpu.doStep());
+        expect(() => cpu.run(1024)).to.not.throw();
         expect(cpu.regs.r0.get()).to.be.equal(2);
         expect(cpu.regs.lr.get()).to.be.equal(2);
     });
@@ -32,7 +32,7 @@ describe('Branching', () => {
         const cpu = new Cpu({
             program
         });
-        while (cpu.doStep());
+        expect(() => cpu.run(1024)).to.not.throw();
         expect(cpu.regs.r0.get()).to.be.equal(2);
     });
 });

@@ -5,7 +5,6 @@ import { Arg, ConditionCode } from '../Arg';
 function creator(link: boolean, condition: ConditionCode = ConditionCode.AL) {
     return class implements Op {
         link = link;
-        args: Arg[] = [];
         cpu: Cpu;
         condition = condition;
         assign: boolean;
@@ -17,7 +16,7 @@ function creator(link: boolean, condition: ConditionCode = ConditionCode.AL) {
             this.label = args[0];
         }
 
-        exe(cpu: Cpu) {
+        exe(cpu: Cpu): boolean {
             if (this.condition != ConditionCode.AL) {
                 if (!cpu.status.check(this.condition)) {
                     return false;

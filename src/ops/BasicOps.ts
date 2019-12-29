@@ -194,4 +194,5 @@ class Nop implements Op {
 
 const BasicOps = createOpCodesConditionals(OpTypes);
 BasicOps.nop = Nop;
+
 export default BasicOps;
